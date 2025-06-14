@@ -1,29 +1,21 @@
 package com.ssafy.user.entity;
-
+// 프로필 정보
 import java.sql.Date;
 import java.time.LocalDateTime;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor //기본 생성자
 public class User {
-	private int id;
+	private long id;
 	private String email;
 	private String password;
 	private String nickname;
-	private Date datetime;
+	private Date createdAt;
 	
-//	public static User of(SignUpRequest request) {
-//		return User.builder()
-//				.email(request.email())
-//				.password(request.password())
-//				.nickname(request.nickanme())
-//				.createdAt(LocalDateTime.now())
-//				.build();
-//	}
+
 	
 }
