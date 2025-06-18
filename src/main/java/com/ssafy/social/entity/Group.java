@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor //기본 생성자
 public class Group {
-	int id;
-	String name;
-	int ownerId;
-	String createAt;
+	private int id;
+	private String name;
+	private int ownerId;
+	private String createAt;
 }
