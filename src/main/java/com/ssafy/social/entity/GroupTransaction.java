@@ -1,5 +1,8 @@
 package com.ssafy.social.entity;
 
+import java.math.BigDecimal;
+import java.sql.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +13,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor //기본 생성자
 public class GroupTransaction {
-	int id;
-	int groupId;
-	int userId;
-	String role;
+    private int id;
+    private int groupId;
+    private int userId;
+    private String type;  // 'INCOME' or 'EXPENSE'
+    private BigDecimal amount;
+    private int categoryId;
+    private String description;
+    private Date date;
 }
+
