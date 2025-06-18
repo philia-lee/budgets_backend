@@ -42,7 +42,6 @@ CREATE TABLE user_groups (
 CREATE TABLE transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
-    group_id INT, -- NULL을 허용하지 않으면 개인 트랜잭션에도 group_id가 필수. 설계 의도에 따라 NULL 허용 여부 결정
     type ENUM('INCOME', 'EXPENSE') NOT NULL,
     amount DECIMAL(12,2) NOT NULL,
     category_id INT,
@@ -50,7 +49,6 @@ CREATE TABLE transactions (
     date DATE NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (group_id) REFERENCES user_groups(id),
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
