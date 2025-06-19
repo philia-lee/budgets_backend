@@ -1,4 +1,4 @@
-package com.ssafy.auth.service;
+package com.ssafy.auth.jwt.service;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;

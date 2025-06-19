@@ -1,10 +1,13 @@
 package com.ssafy.user.repository;
 
+import java.util.Optional;
+
 import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.Repository;
 
 import com.ssafy.user.entity.User;
 
-@Mapper
+@Repository
 public interface UserRepository{
 	
 	@Insert("""
@@ -18,4 +21,11 @@ public interface UserRepository{
 	
 	@Select("SELECT COUNT(*) FROM users WHERE email = #{email}")  //이메일 중복 체크
 	Boolean existsByEmail(@Param("email") String email);
+	
+	@Select("SELECT * FROM users WHERE email = #{email}")
+	Optional<User> findByEmail(@Param("email") String email);
+	
+	@Select("SELECT COUNT(*) FROM users WHERE nickname = #{nickname}")
+	Boolean existsByNickname(@Param("nickname") String nickname);
+	
 }
