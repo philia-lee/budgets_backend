@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.ssafy.auth.service.JwtService;
+import com.ssafy.auth.jwt.service.JwtService;
 import com.ssafy.common.filter.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class SecurityConfig {
 					.anyRequest().authenticated()
 					);
 		// JWT 인증 필터 추가
-		http.addFilterBefore(new JwtAuthenticationFilter(jwtSevice), UsernamePasswordAuthenticationFilter.class);
+//		http.addFilterBefore(new JwtAuthenticationFilter(jwtSevice), UsernamePasswordAuthenticationFilter.class);
 
 
 		return http.build();

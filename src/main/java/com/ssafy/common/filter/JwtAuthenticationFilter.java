@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.ssafy.auth.service.JwtService;
+import com.ssafy.auth.jwt.service.JwtService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter{
-	private final JwtService jwtService;
+//	private final JwtService jwtService;
 	
     @Override // <--- 이 어노테이션이 붙어있어야 합니다.
     protected void doFilterInternal(
