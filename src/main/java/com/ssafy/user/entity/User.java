@@ -3,6 +3,10 @@ package com.ssafy.user.entity;
 import java.sql.Date;
 import java.time.LocalDateTime;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.ssafy.auth.jwt.Token.RefreshToken;
+
 import lombok.*;
 
 @Data
@@ -16,8 +20,8 @@ public class User {
 	private String nickname;
 	private Date birthdate;
 	private String gender;
+	private String refresh_token;
 	private Date createdAt;
-	
 
 	
 }

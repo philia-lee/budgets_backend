@@ -1,5 +1,6 @@
 package com.ssafy.budget.service;
 
+import com.ssafy.budget.dto.CreateBudgetRequest;
 import com.ssafy.budget.entity.Budget;
 import com.ssafy.budget.repository.BudgetRepository;
 import com.ssafy.notification.entity.Notification;
@@ -19,7 +20,23 @@ public class BudgetService {
     private final BudgetRepository budgetRepository;
     private final NotificationRepository notificationRepository;
     // 예산 정보 및 알림을 처리하기 위한 repository 주입
-
+    
+    @Transactional
+    public void createBudget(Long userId,CreateBudgetRequest request)
+    {
+    	Budget budget = Budget.builder()
+                .user_id(userId)
+                .category(request.getCategory_id())
+                .amount(request.getAmount())
+                .start_date(request.getStartDate())
+                .end_date(request.getEndDate())
+                .build();
+    	
+    	budgetRepository.save(budget);
+    }
+    
+    
+    
     @Transactional // 이 메서드는 하나의 트랜잭션으로 실행되어야 함.
     public void checkAndNotifyBudgetOver(Long userId, String category, int totalSpending) {
     	// 특정 유저의 카테고리별 사용금액이 예산을 초과횄는지 검사하고, 초과 시 알림 생성
@@ -29,8 +46,8 @@ public class BudgetService {
         for (Budget budget : budgets) {
         	// 각각의 예산에 대해 반복 실행
             if (budget.getCategory().equals(category)
-                    && LocalDate.now().isAfter(budget.getStartDate().minusDays(1))
-                    && LocalDate.now().isBefore(budget.getEndDate().plusDays(1))
+                    && LocalDate.now().isAfter(budget.getStart_date().minusDays(1))
+                    && LocalDate.now().isBefore(budget.getEnd_date().plusDays(1))
                     && totalSpending > budget.getAmount()) {
             	// 조건. 카테고리 일치하고, 예산 기간 내(StartDate~EndDate)에 있고, 사용 금액이 설정 금액보다 크다면
 
@@ -44,6 +61,7 @@ public class BudgetService {
 
                 notificationRepository.save(alarm); // 알림을 DB에 저장
             }
+     
         }
     }
 }

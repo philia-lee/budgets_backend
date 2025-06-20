@@ -1,16 +1,22 @@
 package com.ssafy.auth.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.auth.dto.LoginRequest;
+import com.ssafy.auth.dto.LoginResponse;
+import com.ssafy.auth.dto.RegisterRequest;
 import com.ssafy.auth.exception.ErrorCode;
-import com.ssafy.auth.exception.exception.BussinessException;
+import com.ssafy.auth.exception.exception.BusinessException;
+import com.ssafy.auth.jwt.Token.AccessToken;
+import com.ssafy.auth.jwt.Token.RefreshToken;
+import com.ssafy.auth.jwt.provider.JwtProvider;
 import com.ssafy.user.entity.User;
 import com.ssafy.user.repository.UserRepository;
 
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+
+import lombok.*;
 
 @Service
 @RequiredArgsConstructor
@@ -21,18 +27,64 @@ import lombok.RequiredArgsConstructor;
  */
 public class AuthService {
 
-//	private final UserRepository userRepository;
-//	
-//	@Transactional
-//	public User logIn(LoginRequest request) {
-//		User user = userRepository.findByEmail(request.getEmail()).orElseThrow(()->new BusinessException(ErrorCode.ILLEGAL_SIGN_IN));
-//
-//		if (!user.checkPassword(request.getPassword())) {
-//			throw new BussinessException(ErrorCode.ILLEGAL_SIGN_IN);
-//		}
-//
-//		return user;
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
+	private final JwtProvider jwtProvider;
 	
+    // 회원가입 메서드
+    @Transactional
+    public void registerUser(RegisterRequest registerRequest) {
+        // 이메일 중복 체크
+    	if (userRepository.existsByEmail(registerRequest.getEmail())) {
+            throw new BusinessException(ErrorCode.ALREADY_EXIST_EMAIL);
+        }
+        // 닉네임 중복 체크
+        if (userRepository.existsByNickname(registerRequest.getNickname())) {
+            throw new BusinessException(ErrorCode.ALREADY_EXIST_NICKNAME);
+        }
 
+        String hashedPassword = passwordEncoder.encode(registerRequest.getPassword());
+
+        User newUser = User.builder()
+                .email(registerRequest.getEmail())
+                .password(hashedPassword)
+                .nickname(registerRequest.getNickname())
+                .birthdate(registerRequest.getBirthdate()) 
+                .gender(registerRequest.getGender())
+                .build();
+
+        userRepository.save(newUser);
+        
+    }
+	
+    @Transactional
+    public LoginResponse  logIn(LoginRequest request) {
+    	User user = userRepository.findByEmail(request.getEmail()).orElseThrow(()->new BusinessException(ErrorCode.ILLEGAL_SIGN_IN));
+        boolean passwordMatches = false;
+
+    	passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
+
+		if (passwordMatches) {
+		AccessToken accessToken = jwtProvider.issueAccessToken(user);
+        RefreshToken refreshToken = jwtProvider.issueRefreshToken(user);
+        user.setRefresh_token(refreshToken.value());
+        userRepository.updateRefreshToken(user);
+        return new LoginResponse(
+                accessToken.value(),
+                refreshToken.value(),
+                "Bearer", // tokenType은 고정값이므로 직접 전달
+                user.getId(),     // user 객체에서 ID 가져오기
+                user.getEmail()   // user 객체에서 이메일 가져오기
+            );
+
+
+		}
+		else
+		{
+			throw new BusinessException(ErrorCode.ILLEGAL_SIGN_IN);
+		}
+		
+
+    }
 	
 }

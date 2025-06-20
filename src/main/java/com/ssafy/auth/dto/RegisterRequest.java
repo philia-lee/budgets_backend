@@ -11,7 +11,7 @@ public class RegisterRequest {
 	private String email;
 	private String password;
 	private String nickname;
-	private Date birhdate;
+	private Date birthdate;
 	private String gender;
 	
 	

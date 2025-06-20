@@ -2,12 +2,24 @@
 package com.ssafy.budget.repository; 
 
 import com.ssafy.budget.entity.Budget;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.ssafy.user.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface BudgetRepository extends JpaRepository<Budget, Long> { 
-	// BudgetRepository는 Budget 엔티티에 대한 DB 접근 기능을 자동으로 구현해주는 JPA 인터페이스
-	// JpaRepository<엔티티클래스, ID타입>
-    List<Budget> findByUserId(Long userId);
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Select;
+
+@Mapper
+public interface BudgetRepository { 
+	
+	@Select("SELECT id,user_id,category_id,amount,start_date,end_date from budgets WHERE user_id = #{userId}")
+	List<Budget> findByUserId(Long userId);
+	
+	@Insert("INSERT INTO budgets (id,user_id,category_id,amount,start_date,end_date) VALUES (#{id},#{user_id},#{category_id},#{amount},#{start_date},#{end_date})")
+	@Options(useGeneratedKeys = true, keyProperty = "id") // DB가 생성한 ID를 User 객체의 id 필드에 주입
+    void save(Budget budge);
+	
 }

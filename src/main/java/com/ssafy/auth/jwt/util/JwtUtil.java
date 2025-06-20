@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component; // 스프링 빈으로 등록�
 
 // 프로젝트에서 정의된 예외 및 DTO 임포트
 import com.ssafy.auth.exception.ErrorCode; // 사용자 정의 에러 코드 Enum
-import com.ssafy.auth.exception.exception.BussinessException; // 사용자 정의 비즈니스 예외
+import com.ssafy.auth.exception.exception.BusinessException; // 사용자 정의 비즈니스 예외
 import com.ssafy.auth.jwt.Token.AccessToken; // AccessToken Record/DTO
 import com.ssafy.auth.jwt.Token.RefreshToken; // RefreshToken Record/DTO
 
@@ -44,7 +44,7 @@ public class JwtUtil {
     // Access Token의 유효 기간 (밀리초 단위)
     private final Long accessTokenExpirePeriod;
     // Refresh Token의 유효 기간 (밀리초 단위)
-    private final Long refreshTokenExpirePeriod;
+    private final Long refreshTokenExpirePeriod; 
 
     /**
      * JwtUtil 클래스의 생성자입니다.
@@ -72,13 +72,13 @@ public class JwtUtil {
      *
      * @param authorizationHeader 전체 Authorization 헤더 문자열 (예: "Bearer eyJ...")
      * @return 추출된 JWT 토큰 문자열
-     * @throws BussinessException 헤더가 null이거나 "Bearer "로 시작하지 않을 경우
+     * @throws BusinessException 헤더가 null이거나 "Bearer "로 시작하지 않을 경우
      */
     public String extractToken(final String authorizationHeader) {
         // Authorization 헤더가 null이거나 "Bearer "로 시작하지 않으면,
         // 토큰이 누락되었음을 알리는 BussinessException을 발생시킵니다.
         if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER)) {
-            throw new BussinessException(ErrorCode.MISSING_TOKEN);
+            throw new BusinessException(ErrorCode.MISSING_TOKEN);
         }
         // "Bearer " 접두사(7글자)를 제거한 나머지 문자열, 즉 실제 JWT 토큰을 반환합니다.
         return authorizationHeader.substring(7);
@@ -164,7 +164,7 @@ public class JwtUtil {
      *
      * @param token 파싱할 JWT 문자열
      * @return 파싱된 JWT 클레임(Claims) 객체
-     * @throws BussinessException 토큰이 유효하지 않거나 만료되었을 때 등 다양한 JWT 관련 예외 발생 시
+     * @throws BusinessException 토큰이 유효하지 않거나 만료되었을 때 등 다양한 JWT 관련 예외 발생 시
      */
     public Claims parse(String token) {
         try {
@@ -176,22 +176,22 @@ public class JwtUtil {
                     .getPayload(); // 페이로드(클레임) 추출
         } catch (IllegalArgumentException e) {
             // 토큰이 null이거나 비어있을 때 발생하는 예외
-            throw new BussinessException(ErrorCode.ILLEGAL_TOKEN, "토큰이 유효하지 않습니다: " + e.getMessage());
+            throw new BusinessException(ErrorCode.ILLEGAL_TOKEN, "토큰이 유효하지 않습니다: " + e.getMessage());
         } catch (ExpiredJwtException e) {
             // 토큰의 유효 기간이 만료되었을 때 발생하는 예외
-            throw new BussinessException(ErrorCode.EXPIRED_TOKEN, "토큰이 만료되었습니다: " + e.getMessage());
+            throw new BusinessException(ErrorCode.EXPIRED_TOKEN, "토큰이 만료되었습니다: " + e.getMessage());
         } catch (UnsupportedJwtException e) {
             // 지원되지 않는 JWT 형식일 때 발생하는 예외 (예: JWE가 아닌 JWT)
-            throw new BussinessException(ErrorCode.UNSUPPORTED_TOKEN, "지원되지 않는 토큰입니다: " + e.getMessage());
+            throw new BusinessException(ErrorCode.UNSUPPORTED_TOKEN, "지원되지 않는 토큰입니다: " + e.getMessage());
         } catch (MalformedJwtException e) {
             // 토큰의 형식이 올바르지 않을 때 발생하는 예외 (예: Base64 디코딩 실패, JSON 파싱 실패)
-            throw new BussinessException(ErrorCode.MALFORMED_TOKEN, "잘못된 형식의 토큰입니다: " + e.getMessage());
+            throw new BusinessException(ErrorCode.MALFORMED_TOKEN, "잘못된 형식의 토큰입니다: " + e.getMessage());
         } catch (JwtException e) {
             // 위에 명시된 예외 외의 JWT 관련 일반적인 예외
-            throw new BussinessException(ErrorCode.UNKNOWN_TOKEN, "알 수 없는 토큰 오류: " + e.getMessage());
+            throw new BusinessException(ErrorCode.UNKNOWN_TOKEN, "알 수 없는 토큰 오류: " + e.getMessage());
         } catch (Exception e) {
             // 예상치 못한 모든 종류의 예외 (매우 중요, 놓칠 수 있는 모든 오류를 포착)
-            throw new BussinessException(ErrorCode.INTERNAL_SERVER_ERROR, "JWT 파싱 중 서버 오류: " + e.getMessage());
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "JWT 파싱 중 서버 오류: " + e.getMessage());
         }
     }
 

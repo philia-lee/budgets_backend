@@ -18,9 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter{
-//	private final JwtService jwtService;
+	private final JwtService jwtService;
 	
-    @Override // <--- 이 어노테이션이 붙어있어야 합니다.
+    @Override 
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
