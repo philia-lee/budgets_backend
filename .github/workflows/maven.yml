@@ -18,7 +18,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    permissions: # 이 부분을 추가해야 합니다.
+      contents: write # 종속성 그래프 제출을 위해 'write' 권한이 필요합니다.
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 17
