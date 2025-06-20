@@ -26,7 +26,7 @@ public class BudgetService {
     {
     	Budget budget = Budget.builder()
                 .user_id(userId)
-                .category(request.getCategory_id())
+                .category_id(request.getCategory_id())
                 .amount(request.getAmount())
                 .start_date(request.getStartDate())
                 .end_date(request.getEndDate())
@@ -45,7 +45,7 @@ public class BudgetService {
 
         for (Budget budget : budgets) {
         	// 각각의 예산에 대해 반복 실행
-            if (budget.getCategory().equals(category)
+            if (budget.getCategory_id().equals(category)
                     && LocalDate.now().isAfter(budget.getStart_date().minusDays(1))
                     && LocalDate.now().isBefore(budget.getEnd_date().plusDays(1))
                     && totalSpending > budget.getAmount()) {
