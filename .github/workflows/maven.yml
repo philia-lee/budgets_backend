@@ -54,6 +54,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }} # 서버 IP 주소 또는 도메인 (GitHub Secret에서 가져옴)
           username: ${{ secrets.SSH_USERNAME }} # 서버 접속 사용자 이름 (GitHub Secret에서 가져옴)
           key: ${{ secrets.SSH_PRIVATE_KEY }} # SSH 개인 키 (GitHub Secret에서 가져옴)
+          port: 5555
           # 중요: 아래 script 블록은 서버 환경에 맞춰 수정해야 합니다.
           script: |
             echo "--- 배포 시작 ---"
