@@ -74,3 +74,4 @@ jobs:
             sudo systemctl status budgets-backend.service | head -n 10
             
             echo "--- 배포 완료 ---"
+            
