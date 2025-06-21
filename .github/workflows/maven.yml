@@ -49,22 +49,24 @@ jobs:
           name: budgets-backend-jar # build 잡에서 지정한 아티팩트 이름과 동일해야 합니다.
           path: ./downloaded-jar # JAR 파일이 다운로드될 GitHub Actions 런너의 임시 경로
 
-      # --- 디버깅 스텝 추가 시작 ---
+      # --- 디버깅 스텝 (JAR 파일 이름 명확하게 확인) ---
       - name: Check downloaded artifact content # 다운로드된 아티팩트의 실제 내용을 확인합니다.
         run: |
           echo "현재 디렉토리: $(pwd)"
           echo "다운로드 디렉토리 내용 (./downloaded-jar/):"
-          ls -l ./downloaded-jar/ # 기존처럼 상세 정보 출력
-
-          # 실제 파일 이름을 더 명확하게 추출하여 출력합니다.
+          ls -l ./downloaded-jar/
+          # 실제 파일 이름을 더 명확하게 추출하여 출력 (GitHub의 필터링을 우회할 수도 있음)
           DOWNLOADED_FILE_NAME=$(ls -1 ./downloaded-jar/ | head -n 1)
           echo ">>> 실제 다운로드된 JAR 파일 이름 (명확한 추출): ${DOWNLOADED_FILE_NAME}"
           echo "JAR_NAME Secret 값 (설정된 값): ${{ secrets.JAR_NAME }}"
           # 이 `DOWNLOADED_FILE_NAME`과 `JAR_NAME Secret 값`이 정확히 일치해야 합니다.
-      # --- 디버깅 스텝 추가 끝 ---
+      # --- 디버깅 스텝 끝 ---
 
       - name: Deploy to Personal Linux Server via SSH # SSH를 통한 배포 스텝
         uses: appleboy/ssh-action@master # SSH 접속 및 명령 실행을 위한 GitHub Action
+        # `JAR_NAME` Secret 값을 환경 변수로 전달하여 `scp_src`에서 사용합니다.
+        env: 
+          ACTUAL_JAR_NAME: ${{ secrets.JAR_NAME }}
         with:
           host: ${{ secrets.SSH_HOST }} # 서버 IP 주소 또는 도메인 (GitHub Secret에서 가져옴)
           username: ${{ secrets.SSH_USERNAME }} # 서버 접속 사용자 이름 (GitHub Secret에서 가져옴)
@@ -73,11 +75,12 @@ jobs:
 
           # --- 파일 전송 (scp_src/scp_dest) ---
           # GitHub Actions 런너에 다운로드된 JAR 파일의 소스 경로
-          # `Download JAR artifact` 액션이 파일을 `path`에 지정된 디렉토리 바로 아래에 저장합니다.
-          scp_src: "./downloaded-jar/${{ secrets.JAR_NAME }}" # 이 경로가 디버깅 스텝에서 확인되는 파일과 일치해야 합니다.
+          # 환경 변수 `ACTUAL_JAR_NAME`을 사용하여 파일명을 지정합니다.
+          scp_src: "./downloaded-jar/${{ env.ACTUAL_JAR_NAME }}"
           
-          # 리눅스 서버의 목적지 경로 (APP_PATH에 지정된 폴더 안으로 JAR 파일명으로 복사)
-          scp_dest: "${{ secrets.APP_PATH }}/${{ secrets.JAR_NAME }}"
+          # 리눅스 서버의 목적지 경로
+          # 환경 변수 `ACTUAL_JAR_NAME`을 사용하여 파일명을 지정합니다.
+          scp_dest: "${{ secrets.APP_PATH }}/${{ env.ACTUAL_JAR_NAME }}"
           
           # script 블록은 이제 파일 복사 명령 없이 다른 서버 명령만 포함합니다.
           script: |
