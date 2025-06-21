@@ -49,6 +49,16 @@ jobs:
           name: budgets-backend-jar # build 잡에서 지정한 아티팩트 이름과 동일해야 합니다.
           path: ./downloaded-jar # JAR 파일이 다운로드될 GitHub Actions 런너의 임시 경로
 
+      # --- 디버깅 스텝 추가 시작 ---
+      - name: Check downloaded artifact content # 다운로드된 아티팩트의 실제 내용을 확인합니다.
+        run: |
+          echo "현재 디렉토리: $(pwd)"
+          echo "다운로드 디렉토리 내용 (./downloaded-jar/):"
+          ls -l ./downloaded-jar/
+          echo "JAR_NAME Secret 값: ${{ secrets.JAR_NAME }}"
+          # 이 ls 명령어가 출력하는 파일 이름과 JAR_NAME Secret 값이 정확히 일치해야 합니다.
+      # --- 디버깅 스텝 추가 끝 ---
+
       - name: Deploy to Personal Linux Server via SSH # SSH를 통한 배포 스텝
         uses: appleboy/ssh-action@master # SSH 접속 및 명령 실행을 위한 GitHub Action
         with:
@@ -57,11 +67,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }} # SSH 개인 키 (GitHub Secret에서 가져옴)
           port: ${{ secrets.SSH_PORT }} # <--- 중요: SSH 포트 (Secret으로 관리)
 
-          # --- 파일 전송 방식 변경 시작 ---
+          # --- 파일 전송 (scp_src/scp_dest) ---
           # GitHub Actions 런너에 다운로드된 JAR 파일의 소스 경로
-          # `Download JAR artifact` 액션이 파일을 `path`에 지정된 디렉토리 바로 아래에 저장하므로,
-          # `downloaded-jar/` 뒤에 아티팩트 이름 폴더는 추가하지 않습니다.
-          scp_src: "./downloaded-jar/${{ secrets.JAR_NAME }}"
+          # `Download JAR artifact` 액션이 파일을 `path`에 지정된 디렉토리 바로 아래에 저장합니다.
+          scp_src: "./downloaded-jar/${{ secrets.JAR_NAME }}" # 이 경로가 디버깅 스텝에서 확인되는 파일과 일치해야 합니다.
           
           # 리눅스 서버의 목적지 경로 (APP_PATH에 지정된 폴더 안으로 JAR 파일명으로 복사)
           scp_dest: "${{ secrets.APP_PATH }}/${{ secrets.JAR_NAME }}"
@@ -71,11 +80,8 @@ jobs:
             echo "--- 배포 시작 ---"
 
             # 1. 서버에 배포될 디렉토리가 없으면 생성합니다. (서버에서 실행)
-            # APP_PATH는 GitHub Secret에 설정한 경로 (예: /home/deployer/budgets-backend)와 일치해야 합니다.
             mkdir -p ${{ secrets.APP_PATH }}
             echo "배포 디렉토리 확인/생성 완료: ${{ secrets.APP_PATH }}"
-
-            # 이전 cp 명령어 및 디버깅 라인은 제거되었습니다. 파일 전송은 scp_src/scp_dest가 처리합니다.
 
             # 2. 애플리케이션 재시작 (systemd 서비스 사용 시 권장) (서버에서 실행)
             echo "애플리케이션 서비스를 재시작합니다..."
@@ -89,3 +95,4 @@ jobs:
             sudo systemctl status budgets-backend.service | head -n 10 # 서비스 로그 상위 10줄 확인
             
             echo "--- 배포 완료 ---"
+          # --- 파일 전송 (scp_src/scp_dest) 끝 ---
