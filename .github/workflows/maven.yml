@@ -94,4 +94,3 @@ jobs:
             sudo systemctl status budgets-backend.service | head -n 10 # 서비스 로그 상위 10줄 확인 (상태와 최근 로그)
             
             echo "--- 배포 완료 ---"
-```
