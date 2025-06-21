@@ -74,6 +74,7 @@ jobs:
             # 'budgets-backend.service'는 서버에 설정한 systemd 서비스 이름이어야 합니다.
             # deployer 사용자가 sudo systemctl 명령을 비밀번호 없이 실행할 수 있도록 sudoers 파일에 설정해야 합니다.
             echo "애플리케이션 서비스를 재시작합니다..."
+            sudo systemctl daemon-reload
             sudo systemctl restart budgets-backend.service || { echo "ERROR: 서비스 재시작 실패. 서버에서 systemctl status budgets-backend.service 명령으로 상태 확인."; exit 1; }
             echo "서비스 재시작 명령 전송 완료."
             
