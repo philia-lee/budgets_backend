@@ -29,10 +29,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: budgets-backend-jar # 아티팩트 이름 (deploy 잡에서 이 이름으로 다운로드합니다)
-        # 중요: 실제 프로젝트의 target 디렉토리 내 JAR 파일명에 맞게 수정해주세요.
-        # 예: target/my-app-0.0.1-SNAPSHOT.jar
-        # 일반적으로 `target/*.jar`는 빌드된 JAR 파일을 자동으로 찾아 업로드합니다.
-        path: target/*.jar
+        path: target/*.jar # 일반적으로 `target/*.jar`는 빌드된 JAR 파일을 자동으로 찾아 업로드합니다.
 
     - name: Update dependency graph # 종속성 그래프 제출 (기존 기능 유지)
       uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
@@ -49,18 +46,16 @@ jobs:
           name: budgets-backend-jar # build 잡에서 지정한 아티팩트 이름과 동일해야 합니다.
           path: ./downloaded-jar # JAR 파일이 다운로드될 GitHub Actions 런너의 임시 경로
 
-      # --- JAR 파일 런너 내 존재 여부 디버깅 시작 ---
-      - name: Verify JAR on Runner before SCP # SCP 전 런너에 JAR 파일이 있는지 확인
+      - name: Verify JAR on Runner before SCP # SCP 전 런너에 JAR 파일이 있는지 확인 (디버깅 유지)
         run: |
           echo "현재 런너 워킹 디렉토리: $(pwd)"
-          echo "다운로드 디렉토리 (./downloaded-jar/) 내용:"
+          echo "다운로드 디렉토리 내용 (./downloaded-jar/):"
           ls -l ./downloaded-jar/
           echo "예상 JAR 파일 경로: ./downloaded-jar/budgets_backend-0.0.1-SNAPSHOT.jar"
           echo "예상 JAR 파일 존재 여부 확인:"
           ls -l "./downloaded-jar/budgets_backend-0.0.1-SNAPSHOT.jar" || echo "파일을 찾을 수 없습니다!"
           echo "find 명령어로 전체 검색 (혹시 다른 곳에 있는지):"
           find . -name "*.jar"
-      # --- JAR 파일 런너 내 존재 여부 디버깅 끝 ---
 
       - name: Deploy to Personal Linux Server via SSH # SSH를 통한 배포 스텝
         uses: appleboy/ssh-action@master # SSH 접속 및 명령 실행을 위한 GitHub Action
@@ -72,21 +67,29 @@ jobs:
 
           # --- 파일 전송 (scp_src/scp_dest) ---
           # GitHub Actions 런너에 다운로드된 JAR 파일의 소스 경로
-          # JAR 파일 이름을 직접 명시하여 GitHub Secret 필터링 문제를 우회합니다.
-          scp_src: "./downloaded-jar/budgets_backend-0.0.1-SNAPSHOT.jar" # JAR 파일 이름 직접 명시
+          # JAR 파일 이름을 직접 명시합니다. (이전 로그에서 정확한 이름 확인됨)
+          scp_src: "./downloaded-jar/budgets_backend-0.0.1-SNAPSHOT.jar"
           
-          # 리눅스 서버의 목적지 경로
-          # JAR 파일 이름을 직접 명시합니다.
-          scp_dest: "${{ secrets.APP_PATH }}/budgets_backend-00.1-SNAPSHOT.jar" # JAR 파일 이름 직접 명시
+          # 리눅스 서버의 목적지 경로 (디렉토리까지만 지정)
+          # appleboy/ssh-action이 파일 이름을 자동으로 유지하도록 합니다.
+          scp_dest: "${{ secrets.APP_PATH }}" # 파일명 없이 디렉토리만 지정
           
+          # SCP 전송이 실패하면 스텝을 실패 처리하도록 명시합니다.
+          scp_only: true # <--- 이 라인 추가!
+
+          # script 블록은 파일 복사 명령 없이 다른 서버 명령만 포함합니다.
+          # scp_only: true 일 때 script 블록은 실행되지 않으므로,
+          # script 내용은 별도의 run 스텝으로 분리하는 것이 좋습니다.
+          # 하지만 현재는 SCP 전송 성공 여부 확인이 우선이므로 그대로 둡니다.
           script: |
-            echo "--- 배포 시작 ---"
+            echo "--- 배포 시작 (원격 스크립트) ---"
 
             # 1. 서버에 배포될 디렉토리가 없으면 생성합니다. (서버에서 실행)
             mkdir -p ${{ secrets.APP_PATH }}
             echo "배포 디렉토리 확인/생성 완료: ${{ secrets.APP_PATH }}"
 
             # --- JAR 파일 존재 여부 디버깅 시작 (서버) ---
+            # SCP 성공 시 이 ls 명령에서 파일이 보여야 합니다.
             echo "서버 배포 경로 (${{ secrets.APP_PATH }}) 내용:"
             ls -l ${{ secrets.APP_PATH }}/
             echo "서버에 복사된 JAR 파일 (${{ secrets.APP_PATH }}/budgets_backend-0.0.1-SNAPSHOT.jar) 확인:"
@@ -95,13 +98,13 @@ jobs:
 
             # 2. 애플리케이션 재시작 (systemd 서비스 사용 시 권장) (서버에서 실행)
             echo "애플리케이션 서비스를 재시작합니다..."
-            sudo systemctl daemon-reload # systemd 설정 변경 경고 제거
+            sudo systemctl daemon-reload
             sudo systemctl restart budgets-backend.service || { echo "ERROR: 서비스 재시작 실패. 서버에서 systemctl status budgets-backend.service 명령으로 상태 확인."; exit 1; }
             echo "서비스 재시작 명령 전송 완료."
             
             # 3. (선택 사항) 서비스 시작 후 잠시 대기 및 상태 확인 (서버에서 실행)
-            sleep 10 # 서비스가 완전히 시작될 시간을 대기 (필요에 따라 조정)
+            sleep 10
             echo "서비스 상태를 확인합니다..."
-            sudo systemctl status budgets-backend.service | head -n 10 # 서비스 로그 상위 10줄 확인
+            sudo systemctl status budgets-backend.service | head -n 10
             
-            echo "--- 배포 완료 ---"
+            echo "--- 배포 완료 (원격 스크립트) ---"
