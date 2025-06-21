@@ -57,34 +57,35 @@ jobs:
           echo "find 명령어로 전체 검색 (혹시 다른 곳에 있는지):"
           find . -name "*.jar"
 
-      - name: Deploy to Personal Linux Server via SSH # SSH를 통한 배포 스텝
-        uses: appleboy/ssh-action@master # SSH 접속 및 명령 실행을 위한 GitHub Action
+      # --- 파일 전송 스텝 (SCP 전용) ---
+      - name: Transfer JAR to Server # JAR 파일만 서버로 전송
+        uses: appleboy/ssh-action@master # SSH 접속 및 SCP 파일 전송을 위한 GitHub Action
         with:
-          host: ${{ secrets.SSH_HOST }} # 서버 IP 주소 또는 도메인 (GitHub Secret에서 가져옴)
-          username: ${{ secrets.SSH_USERNAME }} # 서버 접속 사용자 이름 (GitHub Secret에서 가져옴)
-          key: ${{ secrets.SSH_PRIVATE_KEY }} # SSH 개인 키 (GitHub Secret에서 가져옴)
-          port: ${{ secrets.SSH_PORT }} # <--- 중요: SSH 포트 (Secret으로 관리)
-
-          # --- 파일 전송 (scp_src/scp_dest) ---
-          # GitHub Actions 런너에 다운로드된 JAR 파일의 소스 경로
-          # JAR 파일 이름을 직접 명시합니다. (이전 로그에서 정확한 이름 확인됨)
-          scp_src: "./downloaded-jar/budgets_backend-0.0.1-SNAPSHOT.jar"
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           
-          # 리눅스 서버의 목적지 경로 (디렉토리까지만 지정)
-          # appleboy/ssh-action이 파일 이름을 자동으로 유지하도록 합니다.
-          scp_dest: "${{ secrets.APP_PATH }}" # 파일명 없이 디렉토리만 지정
-          
-          # SCP 전송이 실패하면 스텝을 실패 처리하도록 명시합니다.
-          scp_only: true # <--- 이 라인 추가!
+          # 파일 전송 (scp_src/scp_dest)만 이 스텝에서 담당
+          scp_src: "./downloaded-jar/budgets_backend-0.0.1-SNAPSHOT.jar" # JAR 파일 이름 직접 명시
+          scp_dest: "${{ secrets.APP_PATH }}" # 파일명 없이 디렉토리만 지정 (액션이 파일명 유지)
+          scp_only: true # SCP 전송이 실패하면 이 스텝이 명확히 실패하도록 함
 
-          # script 블록은 파일 복사 명령 없이 다른 서버 명령만 포함합니다.
-          # scp_only: true 일 때 script 블록은 실행되지 않으므로,
-          # script 내용은 별도의 run 스텝으로 분리하는 것이 좋습니다.
-          # 하지만 현재는 SCP 전송 성공 여부 확인이 우선이므로 그대로 둡니다.
+      # --- 원격 스크립트 실행 스텝 (별도 분리) ---
+      - name: Run Remote Deployment Script # 서버에서 배포 스크립트 실행
+        uses: appleboy/ssh-action@master # SSH 접속 및 명령 실행을 위한 GitHub Action
+        # 파일 전송 스텝이 성공해야 이 스텝이 실행됩니다.
+        needs: Transfer JAR to Server 
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          
           script: |
             echo "--- 배포 시작 (원격 스크립트) ---"
 
-            # 1. 서버에 배포될 디렉토리가 없으면 생성합니다. (서버에서 실행)
+            # 1. 서버에 배포될 디렉토리가 없으면 생성합니다.
             mkdir -p ${{ secrets.APP_PATH }}
             echo "배포 디렉토리 확인/생성 완료: ${{ secrets.APP_PATH }}"
 
@@ -96,13 +97,13 @@ jobs:
             ls -l ${{ secrets.APP_PATH }}/budgets_backend-0.0.1-SNAPSHOT.jar || echo "서버에서 JAR 파일을 찾을 수 없습니다!"
             # --- JAR 파일 존재 여부 디버깅 끝 ---
 
-            # 2. 애플리케이션 재시작 (systemd 서비스 사용 시 권장) (서버에서 실행)
+            # 2. 애플리케이션 재시작
             echo "애플리케이션 서비스를 재시작합니다..."
             sudo systemctl daemon-reload
             sudo systemctl restart budgets-backend.service || { echo "ERROR: 서비스 재시작 실패. 서버에서 systemctl status budgets-backend.service 명령으로 상태 확인."; exit 1; }
             echo "서비스 재시작 명령 전송 완료."
             
-            # 3. (선택 사항) 서비스 시작 후 잠시 대기 및 상태 확인 (서버에서 실행)
+            # 3. (선택 사항) 서비스 시작 후 잠시 대기 및 상태 확인
             sleep 10
             echo "서비스 상태를 확인합니다..."
             sudo systemctl status budgets-backend.service | head -n 10
