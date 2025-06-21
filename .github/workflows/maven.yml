@@ -29,10 +29,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: budgets-backend-jar # 아티팩트 이름 (deploy 잡에서 이 이름으로 다운로드합니다)
-        # 중요: 실제 프로젝트의 target 디렉토리 내 JAR 파일명에 맞게 수정해주세요.
-        # 예: target/my-app-0.0.1-SNAPSHOT.jar
-        # 일반적으로 `target/*.jar`는 빌드된 JAR 파일을 자동으로 찾아 업로드합니다.
-        path: target/*.jar
+        path: target/*.jar # 일반적으로 `target/*.jar`는 빌드된 JAR 파일을 자동으로 찾아 업로드합니다.
 
     - name: Update dependency graph # 종속성 그래프 제출 (기존 기능 유지)
       uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
@@ -49,57 +46,52 @@ jobs:
           name: budgets-backend-jar # build 잡에서 지정한 아티팩트 이름과 동일해야 합니다.
           path: ./downloaded-jar # JAR 파일이 다운로드될 GitHub Actions 런너의 임시 경로
 
-      # --- 디버깅 스텝 (JAR 파일 이름 명확하게 확인) ---
       - name: Check downloaded artifact content # 다운로드된 아티팩트의 실제 내용을 확인합니다.
         run: |
-          echo "현재 디렉토리: $(pwd)"
+          echo "현재 런너 디렉토리: $(pwd)"
           echo "다운로드 디렉토리 내용 (./downloaded-jar/):"
           ls -l ./downloaded-jar/
-          # 실제 파일 이름을 더 명확하게 추출하여 출력 (GitHub의 필터링을 우회할 수도 있음)
+          # 실제 파일 이름을 더 명확하게 추출하여 출력합니다.
           DOWNLOADED_FILE_NAME=$(ls -1 ./downloaded-jar/ | head -n 1)
           echo ">>> 실제 다운로드된 JAR 파일 이름 (명확한 추출): ${DOWNLOADED_FILE_NAME}"
           echo "JAR_NAME Secret 값 (설정된 값): ${{ secrets.JAR_NAME }}"
           # 이 `DOWNLOADED_FILE_NAME`과 `JAR_NAME Secret 값`이 정확히 일치해야 합니다.
-      # --- 디버깅 스텝 끝 ---
-
+          # scp_src에 사용할 최종 경로도 출력합니다.
+          echo "SCP 소스 경로 확인: ./downloaded-jar/${{ secrets.JAR_NAME }}" # 이 경로로 파일이 있어야 함
+      
       - name: Deploy to Personal Linux Server via SSH # SSH를 통한 배포 스텝
         uses: appleboy/ssh-action@master # SSH 접속 및 명령 실행을 위한 GitHub Action
-        # `JAR_NAME` Secret 값을 환경 변수로 전달하여 `scp_src`에서 사용합니다.
         env: 
           ACTUAL_JAR_NAME: ${{ secrets.JAR_NAME }}
         with:
-          host: ${{ secrets.SSH_HOST }} # 서버 IP 주소 또는 도메인 (GitHub Secret에서 가져옴)
-          username: ${{ secrets.SSH_USERNAME }} # 서버 접속 사용자 이름 (GitHub Secret에서 가져옴)
-          key: ${{ secrets.SSH_PRIVATE_KEY }} # SSH 개인 키 (GitHub Secret에서 가져옴)
-          port: ${{ secrets.SSH_PORT }} # <--- 중요: SSH 포트 (Secret으로 관리)
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
 
           # --- 파일 전송 (scp_src/scp_dest) ---
           # GitHub Actions 런너에 다운로드된 JAR 파일의 소스 경로
-          # 환경 변수 `ACTUAL_JAR_NAME`을 사용하여 파일명을 지정합니다.
-          scp_src: "./downloaded-jar/${{ env.ACTUAL_JAR_NAME }}"
+          scp_src: "./downloaded-jar/${{ secrets.JAR_NAME }}" # 이 경로로 파일이 있어야 합니다.
           
           # 리눅스 서버의 목적지 경로
-          # 환경 변수 `ACTUAL_JAR_NAME`을 사용하여 파일명을 지정합니다.
-          scp_dest: "${{ secrets.APP_PATH }}/${{ env.ACTUAL_JAR_NAME }}"
+          scp_dest: "${{ secrets.APP_PATH }}/${{ secrets.JAR_NAME }}"
           
-          # script 블록은 이제 파일 복사 명령 없이 다른 서버 명령만 포함합니다.
           script: |
             echo "--- 배포 시작 ---"
 
-            # 1. 서버에 배포될 디렉토리가 없으면 생성합니다. (서버에서 실행)
+            # 1. 서버에 배포될 디렉토리가 없으면 생성합니다.
             mkdir -p ${{ secrets.APP_PATH }}
             echo "배포 디렉토리 확인/생성 완료: ${{ secrets.APP_PATH }}"
 
-            # 2. 애플리케이션 재시작 (systemd 서비스 사용 시 권장) (서버에서 실행)
+            # 2. 애플리케이션 재시작
             echo "애플리케이션 서비스를 재시작합니다..."
-            sudo systemctl daemon-reload # systemd 설정 변경 경고 제거
+            sudo systemctl daemon-reload
             sudo systemctl restart budgets-backend.service || { echo "ERROR: 서비스 재시작 실패. 서버에서 systemctl status budgets-backend.service 명령으로 상태 확인."; exit 1; }
             echo "서비스 재시작 명령 전송 완료."
             
-            # 3. (선택 사항) 서비스 시작 후 잠시 대기 및 상태 확인 (서버에서 실행)
-            sleep 10 # 서비스가 완전히 시작될 시간을 대기 (필요에 따라 조정)
+            # 3. (선택 사항) 서비스 시작 후 잠시 대기 및 상태 확인
+            sleep 10
             echo "서비스 상태를 확인합니다..."
-            sudo systemctl status budgets-backend.service | head -n 10 # 서비스 로그 상위 10줄 확인
+            sudo systemctl status budgets-backend.service | head -n 10
             
             echo "--- 배포 완료 ---"
-          # --- 파일 전송 (scp_src/scp_dest) 끝 ---
