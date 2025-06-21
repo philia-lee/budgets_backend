@@ -65,12 +65,12 @@ jobs:
 
             # --- 디버깅 정보 추가 시작 ---
             echo "실제 JAR_NAME Secret 값: ${{ secrets.JAR_NAME }}"
-            echo "다운로드된 아티팩트 폴더 내용 (./downloaded-jar/budgets-backend-jar/):"
-            ls -l ./downloaded-jar/budgets-backend-jar/
+            echo "다운로드된 아티팩트 폴더 내용 (./downloaded-jar/):"
+            ls -l ./downloaded-jar/
             # --- 디버깅 정보 추가 끝 ---
 
             # 2. 다운로드된 JAR 파일을 서버의 배포 경로로 복사합니다.
-            cp ./downloaded-jar/budgets-backend-jar/${{ secrets.JAR_NAME }} ${{ secrets.APP_PATH }}/${{ secrets.JAR_NAME }}
+            cp ./downloaded-jar/${{ secrets.JAR_NAME }} ${{ secrets.APP_PATH }}/${{ secrets.JAR_NAME }}
             echo "JAR 파일이 서버의 ${{ secrets.APP_PATH }} 경로로 복사되었습니다: ${{ secrets.JAR_NAME }}"
 
             # 3. 애플리케이션 재시작 (systemd 서비스 사용 시 권장)
