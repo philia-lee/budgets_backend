@@ -54,9 +54,13 @@ jobs:
         run: |
           echo "현재 디렉토리: $(pwd)"
           echo "다운로드 디렉토리 내용 (./downloaded-jar/):"
-          ls -l ./downloaded-jar/
-          echo "JAR_NAME Secret 값: ${{ secrets.JAR_NAME }}"
-          # 이 ls 명령어가 출력하는 파일 이름과 JAR_NAME Secret 값이 정확히 일치해야 합니다.
+          ls -l ./downloaded-jar/ # 기존처럼 상세 정보 출력
+
+          # 실제 파일 이름을 더 명확하게 추출하여 출력합니다.
+          DOWNLOADED_FILE_NAME=$(ls -1 ./downloaded-jar/ | head -n 1)
+          echo ">>> 실제 다운로드된 JAR 파일 이름 (명확한 추출): ${DOWNLOADED_FILE_NAME}"
+          echo "JAR_NAME Secret 값 (설정된 값): ${{ secrets.JAR_NAME }}"
+          # 이 `DOWNLOADED_FILE_NAME`과 `JAR_NAME Secret 값`이 정확히 일치해야 합니다.
       # --- 디버깅 스텝 추가 끝 ---
 
       - name: Deploy to Personal Linux Server via SSH # SSH를 통한 배포 스텝
