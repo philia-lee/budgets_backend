@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class UpdateBudgetRequest {
-    private Long budgetId; // 수정할 예산 id
+    private Integer category_id;
     private Integer amount;
     private LocalDate startDate;
     private LocalDate endDate;
