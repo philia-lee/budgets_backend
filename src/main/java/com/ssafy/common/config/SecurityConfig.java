@@ -15,6 +15,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.ssafy.auth.jwt.service.JwtService;
 import com.ssafy.common.filter.JwtAuthenticationFilter; // JwtAuthenticationFilter 임포트
+import com.ssafy.common.filter.JwtExceptionFilter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,8 +26,8 @@ public class SecurityConfig {
 
     private final JwtService jwtSevice;
     // JwtAuthenticationFilter를 주입받도록 final 필드로 선언합니다.
-    private final JwtAuthenticationFilter jwtAuthenticationFilter; // <<-- 이 줄 추가!
-
+    private final JwtAuthenticationFilter jwtAuthenticationFilter; 
+    private final JwtExceptionFilter jwtExceptionFilter;
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -45,8 +46,7 @@ public class SecurityConfig {
                 .requestMatchers(
                     new AntPathRequestMatcher("/swagger-ui/**"),
                     new AntPathRequestMatcher("/v3/api-docs/**"),
-                    new AntPathRequestMatcher("/swagger-resources/**"),
-                    new AntPathRequestMatcher("/webjars/**")
+                    new AntPathRequestMatcher("/swagger-resources/**")
                 ).permitAll()
                 .requestMatchers(
                     new AntPathRequestMatcher("/api/auth/register"),
@@ -54,9 +54,12 @@ public class SecurityConfig {
                 ).permitAll()
                 .anyRequest().authenticated()
             );
-
-        // 직접 new 하는 대신, 스프링이 빈으로 관리하는 jwtAuthenticationFilter 인스턴스를 사용합니다.
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); //
+        http
+        .addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
+        
 
         return http.build();
     }

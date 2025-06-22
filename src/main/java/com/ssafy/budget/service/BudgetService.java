@@ -35,6 +35,11 @@ public class BudgetService {
     	budgetRepository.save(budget);
     }
     
+    @Transactional
+    public void deleteBudget(Long userId,Long budgetId)
+    {
+    	budgetRepository.delete(userId,budgetId);
+    }
     
     
     @Transactional // 이 메서드는 하나의 트랜잭션으로 실행되어야 함.
