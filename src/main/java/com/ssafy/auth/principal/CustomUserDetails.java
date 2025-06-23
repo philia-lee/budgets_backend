@@ -1,69 +1,36 @@
-// src/main/java/com/ssafy/auth/principal/CustomUserDetails.java
-package com.ssafy.auth.principal; // 이 패키지 경로를 사용합니다.
+package com.ssafy.auth.principal; // 패키지 경로는 기존과 동일하게 유지
 
-import com.ssafy.user.entity.User; // 유저 엔티티 임포트
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List; // List.of()를 사용하려면 필요
+import java.util.Collections; // Collections.singletonList()를 사용하려면 필요
 
-@Getter
-@NoArgsConstructor
+@ToString
+@RequiredArgsConstructor // final 필드를 위한 생성자를 자동으로 생성해 줍니다.
 public class CustomUserDetails implements UserDetails {
 
-    private Long id;
-    private String email;
-    private String password;
-    // private String role; // User 엔티티에 역할 필드가 있다면 추가
-
-    public CustomUserDetails(User user) {
-        this.id = user.getId(); // long을 Integer로 변환
-        this.email = user.getEmail();
-        this.password = user.getPassword();
-        // this.role = user.getRole();
-    }
+    @Getter private final Long id;   // 사용자 ID (JWT 클레임에서 Integer로 추출된다고 가정)
+    
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        // 'role' 필드가 없거나 사용하지 않는 경우, 모든 인증된 사용자에게 기본 권한 부여
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-        // return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role.toUpperCase())); // role 필드 사용 시
     }
 
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
+	@Override
+	public String getPassword() {
+		return null;
+	}
 
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
+	@Override
+	public String getUsername() {
+		return id.toString();
+	}
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-    public Long getId() {
-        return this.id;
-    }
 }

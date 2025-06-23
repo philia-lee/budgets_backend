@@ -1,6 +1,9 @@
 package com.ssafy.budget.service;
 
+import com.ssafy.auth.exception.ErrorCode;
+import com.ssafy.auth.exception.exception.BusinessException;
 import com.ssafy.budget.dto.CreateBudgetRequest;
+import com.ssafy.budget.dto.UpdateBudgetRequest;
 import com.ssafy.budget.entity.Budget;
 import com.ssafy.budget.repository.BudgetRepository;
 import com.ssafy.notification.entity.Notification;
@@ -24,9 +27,10 @@ public class BudgetService {
     @Transactional
     public void createBudget(Long userId,CreateBudgetRequest request)
     {
+
     	Budget budget = Budget.builder()
                 .user_id(userId)
-                .category(request.getCategory_id())
+                .category_id(request.getCategory_id())
                 .amount(request.getAmount())
                 .start_date(request.getStartDate())
                 .end_date(request.getEndDate())
@@ -35,7 +39,35 @@ public class BudgetService {
     	budgetRepository.save(budget);
     }
     
+    @Transactional
+    public void deleteBudget(Long userId,Long budgetId)
+    {
+    	Boolean existingBudget = budgetRepository.existsByIdAndUserId(userId, budgetId);
+    	if (!existingBudget) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED);
+        }
+    	budgetRepository.delete(userId,budgetId);
+    }
     
+    
+    @Transactional
+    public void updateBudget(Long userId,Long budgetId,UpdateBudgetRequest request)
+    {
+    	//존재하지 않는 것이면 
+    	Boolean existingBudget = budgetRepository.existsByIdAndUserId(userId, budgetId);
+    	if (!existingBudget) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED);
+        }
+    	Budget budget = Budget.builder()
+    			.id(budgetId)
+                .user_id(userId)
+                .category_id(request.getCategory_id())
+                .amount(request.getAmount())
+                .start_date(request.getStartDate())
+                .end_date(request.getEndDate())
+                .build();
+    	budgetRepository.update(budget, budgetId, userId);
+    }
     
     @Transactional // 이 메서드는 하나의 트랜잭션으로 실행되어야 함.
     public void checkAndNotifyBudgetOver(Long userId, String category, int totalSpending) {
@@ -45,7 +77,7 @@ public class BudgetService {
 
         for (Budget budget : budgets) {
         	// 각각의 예산에 대해 반복 실행
-            if (budget.getCategory().equals(category)
+            if (budget.getCategory_id().equals(category)
                     && LocalDate.now().isAfter(budget.getStart_date().minusDays(1))
                     && LocalDate.now().isBefore(budget.getEnd_date().plusDays(1))
                     && totalSpending > budget.getAmount()) {

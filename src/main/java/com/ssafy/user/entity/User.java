@@ -15,6 +15,7 @@ import lombok.*;
 @NoArgsConstructor //기본 생성자
 public class User {
 	private long id;
+	private long kakao_id;
 	private String email;
 	private String password;
 	private String nickname;
