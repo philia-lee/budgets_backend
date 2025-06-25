@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 
 @Data
-public class CreateGroupTransactionRequest {
+public class GroupTransactionRequest {
     private String type;       // INCOME or EXPENSE
     private BigDecimal amount;
     private int categoryId;

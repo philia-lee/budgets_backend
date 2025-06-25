@@ -1,5 +1,7 @@
 package com.ssafy.social.entity;
 
+import java.sql.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,5 +15,5 @@ public class Group {
 	private int id;
 	private String name;
 	private int ownerId;
-	private String createAt;
+	private Date createdAt;
 }
