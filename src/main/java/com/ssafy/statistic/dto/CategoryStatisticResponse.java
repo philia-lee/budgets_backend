@@ -1,14 +1,11 @@
 package com.ssafy.statistic.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
-@AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class CategoryStatisticResponse {
-    private String categoryName;   // 예: "식비", "교통비"
-    private int totalAmount;       // 총 지출 금액
-    private double percentage;     // 전체에서 차지하는 비율 (%)
+    private Integer category_id;
+    private String category_name;
+    private Double total_amount; // DECIMAL(12,2) → Double
+    private Double percentage;
 }
