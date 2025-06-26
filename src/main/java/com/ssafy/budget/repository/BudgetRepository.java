@@ -31,13 +31,19 @@ public interface BudgetRepository {
             FROM budgets
             WHERE id = #{budgetId} AND user_id = #{userId}
             """)
-    boolean existsByIdAndUserId(@Param("budgetId") Long budgetId, @Param("userId") Long userId);
+    boolean existsByIdAndUserId(@Param("userId") Long userId,@Param("budgetId") Long budgetId);
 
 	
 	//budget 생성
-	@Insert("INSERT INTO budgets (id,user_id,category_id,amount,start_date,end_date) VALUES (#{id},#{user_id},#{category_id},#{amount},#{start_date},#{end_date})")
+	@Insert("""
+			INSERT INTO budgets
+			(id,user_id,category_id,amount,start_date,end_date) 
+			VALUES 
+			(#{budget.id},#{budget.user_id},#{budget.category_id},#{budget.amount},#{budget.start_date},#{budget.end_date})
+			
+			""")
 	@Options(useGeneratedKeys = true, keyProperty = "id")
-    void save(Budget budge);
+    void save(@Param("budget") Budget budge);
 	
 	
 	//budget 삭제
