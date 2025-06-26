@@ -2,28 +2,29 @@ package com.ssafy.social.repository;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import com.ssafy.social.dto.response.GroupMemberInfo;
 import com.ssafy.social.entity.Group;
 
 @Mapper
 public interface GroupRepository {
 	// 그룹 생성
 	@Insert("""
-
-			INSERT INTO user_groups (name,owner_id,created_at)
-			VALUES (#{name}, #{ownerId}, #{createdAt)
+			    INSERT INTO user_groups (name, owner_id, created_at)
+			    VALUES (#{name}, #{ownerId}, now())
 			""")
 	@Options(useGeneratedKeys = true, keyProperty = "id")
-	void create(Group group);
+	void createGroup(Group group);
 
 	// 그룹 삭제
 	@Select("DELETE FROM user_groups WHERE id = #{groupId}")
-	void deleteById(@Param("groupId") int groupId);
+	void deleteGroup(@Param("groupId") int groupId);
 
 	// 그룹 이름 수정
 	@Select("""
@@ -31,7 +32,7 @@ public interface GroupRepository {
 				SET name = #{name}
 				WHERE id = #{groupId}
 			""")
-	void updateName(@Param("groupId") int groupId, @Param("name") String name);
+	void updateGroupName(@Param("groupId") int groupId, @Param("name") String name);
 
 	// 내가 속한 그룹 목록 조회
 	@Select("""
@@ -58,4 +59,25 @@ public interface GroupRepository {
 				WHERE group_id = #{groupId} AND user_id = #{userId}
 			""")
 	boolean isMember(@Param("groupId") int groupId, @Param("userId") int userId);
+
+	// 그룹 멤버 추가
+	@Insert("""
+			    INSERT INTO group_members (group_id, user_id, role)
+			    VALUES (#{groupId}, #{userId}, #{role})
+			""")
+	void addGroupMember(@Param("groupId") int groupId, @Param("userId") int userId, @Param("role") String role);
+
+	@Delete("""
+			    DELETE FROM group_members
+			    WHERE group_id = #{groupId} AND user_id = #{userId}
+			""")
+	void removeGroupMember(@Param("groupId") int groupId, @Param("userId") int userId);
+
+	@Select("""
+			    SELECT gm.user_id, u.nickname, gm.role
+			    FROM group_members gm
+			    JOIN users u ON gm.user_id = u.id
+			    WHERE gm.group_id = #{groupId}
+			""")
+	List<GroupMemberInfo> findMembersByGroupId(@Param("groupId") int groupId);
 }

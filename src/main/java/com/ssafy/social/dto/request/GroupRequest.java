@@ -3,7 +3,6 @@ package com.ssafy.social.dto.request;
 import lombok.Data;
 
 @Data
-public class CreateGroupRequest {
+public class GroupRequest {
     private String groupName;
-    private String description;
 }
