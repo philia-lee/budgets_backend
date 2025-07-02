@@ -1,4 +1,4 @@
-package com.ssafy.social.dto.request;
+package com.ssafy.social.transaction.dto.request;
 
 import lombok.Data;
 
@@ -7,6 +7,7 @@ import java.sql.Date;
 
 @Data
 public class GroupTransactionRequest {
+	private int id;
     private String type;       // INCOME or EXPENSE
     private BigDecimal amount;
     private int categoryId;

@@ -1,4 +1,4 @@
-package com.ssafy.social.entity;
+package com.ssafy.social.transaction.entity;
 
 import java.math.BigDecimal;
 import java.sql.Date;

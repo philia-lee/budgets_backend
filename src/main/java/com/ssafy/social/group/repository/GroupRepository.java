@@ -1,4 +1,4 @@
-package com.ssafy.social.repository;
+package com.ssafy.social.group.repository;
 
 import java.util.List;
 
@@ -9,8 +9,8 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
-import com.ssafy.social.dto.response.GroupMemberInfo;
-import com.ssafy.social.entity.Group;
+import com.ssafy.social.group.entity.Group;
+import com.ssafy.social.member.dto.response.GroupMemberResponse;
 
 @Mapper
 public interface GroupRepository {
@@ -59,25 +59,4 @@ public interface GroupRepository {
 				WHERE group_id = #{groupId} AND user_id = #{userId}
 			""")
 	boolean isMember(@Param("groupId") int groupId, @Param("userId") int userId);
-
-	// 그룹 멤버 추가
-	@Insert("""
-			    INSERT INTO group_members (group_id, user_id, role)
-			    VALUES (#{groupId}, #{userId}, #{role})
-			""")
-	void addGroupMember(@Param("groupId") int groupId, @Param("userId") int userId, @Param("role") String role);
-
-	@Delete("""
-			    DELETE FROM group_members
-			    WHERE group_id = #{groupId} AND user_id = #{userId}
-			""")
-	void removeGroupMember(@Param("groupId") int groupId, @Param("userId") int userId);
-
-	@Select("""
-			    SELECT gm.user_id, u.nickname, gm.role
-			    FROM group_members gm
-			    JOIN users u ON gm.user_id = u.id
-			    WHERE gm.group_id = #{groupId}
-			""")
-	List<GroupMemberInfo> findMembersByGroupId(@Param("groupId") int groupId);
 }

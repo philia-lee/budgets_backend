@@ -1,4 +1,4 @@
-package com.ssafy.social.entity;
+package com.ssafy.social.group.entity;
 
 import java.sql.Date;
 

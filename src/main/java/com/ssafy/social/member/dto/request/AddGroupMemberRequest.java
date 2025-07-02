@@ -1,4 +1,4 @@
-package com.ssafy.social.dto.request;
+package com.ssafy.social.member.dto.request;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.ssafy.social.dto.response;
+package com.ssafy.social.group.dto.response;
 
 import lombok.Data;
 
