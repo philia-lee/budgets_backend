@@ -7,6 +7,7 @@ import com.ssafy.social.member.service.GroupMemberService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/groups/{groupId}/members")
+@Tag(name = "그룹 멤버 관리", description = "멤버 CRUD")
 @RequiredArgsConstructor
 public class GroupMemberController {
 

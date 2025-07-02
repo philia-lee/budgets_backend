@@ -3,6 +3,7 @@ package com.ssafy.social.transaction.controller;
 import com.ssafy.social.group.service.GroupService;
 import com.ssafy.social.transaction.dto.request.GroupTransactionRequest;
 import com.ssafy.social.transaction.dto.response.GroupTransactionResponse;
+import com.ssafy.social.transaction.dto.response.SettlementResponse;
 import com.ssafy.social.transaction.entity.GroupTransaction;
 import com.ssafy.social.transaction.service.GroupTransactionService;
 
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/groups/{groupId}/transactions")
+@Tag(name = "그룹 거래 관리", description = "거래 CRUD, 정산")
 @RequiredArgsConstructor
 public class GroupTransactionController {
 
@@ -99,6 +102,14 @@ public class GroupTransactionController {
 
         service.deleteTransaction(groupId, transactionId);
         return ResponseEntity.ok(Map.of("message", "Group transaction deleted successfully"));
+    }
+    
+    // 정산 결과 조회
+    @GetMapping("/settlement")
+    @Operation(summary = "그룹 정산 결과 계산", description = "그룹의 지출을 바탕으로 정산 내역을 계산합니다.")
+    public ResponseEntity<List<SettlementResponse>> getSettlement(@PathVariable int groupId) {
+        List<SettlementResponse> result = service.calculateSettlement(groupId);
+        return ResponseEntity.ok(result);
     }
 
     // 변환 메서드

@@ -26,11 +26,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 // 그룹 생성, 수정, 삭제, 조회
 @RestController
 @RequestMapping("/api/groups")
+@Tag(name = "그룹 관리", description = "그룹 CRUD")
 @RequiredArgsConstructor
 public class GroupController {
 	private final GroupService groupService;
