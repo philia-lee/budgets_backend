@@ -22,7 +22,7 @@ public interface TransactionRepository {
 	        """)
 	@Options(useGeneratedKeys = true, keyProperty = "transaction.id")
 	void save(@Param("userId") Long userId,
-			@Param("transaction") Transaction transaction); // userId는 transaction 객체 안에 포함
+			@Param("transaction") Transaction transaction);
 	
 	@Select("SELECT count(*) FROM transactions WHERE id = #{id} and user_id=#{userId}")
 	Boolean existsByIdAndUserId(@Param("userId") Long userId,@Param("id") Long id);
