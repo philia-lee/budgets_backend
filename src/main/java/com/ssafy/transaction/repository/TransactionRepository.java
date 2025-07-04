@@ -20,7 +20,7 @@ public interface TransactionRepository {
 	        VALUES
 	        (#{userId}, #{transaction.type}, #{transaction.amount}, #{transaction.category_id}, #{transaction.description}, #{transaction.date})
 	        """)
-	@Options(useGeneratedKeys = true, keyProperty = "id")
+	@Options(useGeneratedKeys = true, keyProperty = "transaction.id")
 	void save(@Param("userId") Long userId,
 			@Param("transaction") Transaction transaction); // userId는 transaction 객체 안에 포함
 	
