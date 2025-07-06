@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class Transaction {
+	private long id;
 	private String type;
 	private Integer amount;
 	private Integer category_id;
