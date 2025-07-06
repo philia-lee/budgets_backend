@@ -19,9 +19,15 @@ public interface GroupMemberRepository {
         WHERE group_id = #{groupId} AND user_id = #{userId}
     """)
     void removeMember(@Param("groupId") int groupId, @Param("userId") int userId);
+    
+    @Delete("""
+    	    DELETE FROM group_members
+    	    WHERE group_id = #{groupId}
+    	""")
+    void removeAllMember(@Param("groupId") int groupId);
 
     @Select("""
-        SELECT group_id, user_id, role
+        SELECT group_id, user_id as userId, role
         FROM group_members
         WHERE group_id = #{groupId}
     """)

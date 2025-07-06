@@ -36,7 +36,7 @@ public interface GroupRepository {
 
 	// 내가 속한 그룹 목록 조회
 	@Select("""
-				SELECT ug.id, ug.name, ug.owner_id, ug.created_at
+				SELECT ug.id, ug.name, ug.owner_id AS ownerId, ug.created_at AS createdAt
 				FROM user_groups ug
 				JOIN group_members gm ON ug.id = gm.group_id
 				WHERE gm.user_id = #{userId}
@@ -45,7 +45,7 @@ public interface GroupRepository {
 
 	// 그룹ID로 특정 그룹 상세정보 가져오기
 	@Select("""
-				SELECT id, name, owner_id, created_at
+				SELECT id, name, owner_id as ownerId, created_at as createdAt
 				FROM user_groups
 				WHERE id = #{groupId}
 			""")

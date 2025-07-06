@@ -23,13 +23,10 @@ public class GroupServiceImpl implements GroupService {
 	
 	private final GroupMemberRepository groupMemberRepository;
 	
-	@Autowired
-	private GroupTransactionRepository groupTransactionRepository;
-	
 	@Override
-	public void createGroup(int ownerId, String groupName) {
+	public void createGroup(int ownerId, String name) {
 		Group group = new Group();
-        group.setName(groupName);
+        group.setName(name);
         group.setOwnerId(ownerId);
 
         groupRepository.createGroup(group);
@@ -66,53 +63,8 @@ public class GroupServiceImpl implements GroupService {
         if (group.getOwnerId() != userId) {
             throw new RuntimeException("그룹을 삭제할 권한이 없습니다.");
         }
+        // 먼저 모든 멤버를 삭제해야함
+        groupMemberRepository.removeAllMember(groupId);
         groupRepository.deleteGroup(groupId);
 	}
-
-//	@Override
-//	public void addGroupTransaction(int groupId, GroupTransaction transaction) {
-//		// 그룹 존재 및 권한 검증 (임시 생략, 이건 다음 스텝에서 구현)
-//	    transaction.setGroupId(groupId);
-//	    groupTransactionRepository.insertGroupTransaction(transaction);
-//	}
-//
-//	@Override
-//	public List<GroupTransaction> getGroupTransactions(int groupId) {
-//		return groupTransactionRepository.findByGroupId(groupId);
-//	}
-//
-//	@Override
-//	public void updateGroupTransaction(int groupId, GroupTransaction transaction) {
-//		transaction.setGroupId(groupId);
-//	    groupTransactionRepository.updateGroupTransaction(transaction);
-//	}
-//
-//	@Override
-//	public void deleteGroupTransaction(int groupId, int transactionId) {
-//		groupTransactionRepository.deleteGroupTransaction(groupId, transactionId);
-//	}
-//
-//	@Override
-//	public void addMember(int groupId, int userId, int newMemberId) {
-//		if (!groupRepository.isMember(groupId, userId)) {
-//	        throw new RuntimeException("권한 없음");
-//	    }
-//	    groupRepository.addGroupMember(groupId, newMemberId, "GENERAL");
-//	}
-//
-//	@Override
-//	public void removeMember(int groupId, int userId, int targetUserId) {
-//		if (!groupRepository.isMember(groupId, userId)) {
-//	        throw new RuntimeException("권한 없음");
-//	    }
-//	    groupRepository.removeGroupMember(groupId, targetUserId);
-//	}
-//	
-//	@Override
-//	public List<GroupMemberInfo> getMembers(int groupId, int userId) {
-//		if (!groupRepository.isMember(groupId, userId)) {
-//	        throw new RuntimeException("권한 없음");
-//	    }
-//	    return groupRepository.findMembersByGroupId(groupId);
-//	}
 }

@@ -3,6 +3,7 @@ package com.ssafy.social.member.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.social.group.repository.GroupRepository;
@@ -22,9 +23,6 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 
 	@Override
 	public void inviteMember(int groupId, int inviterId, int targetUserId) {
-		if (!groupRepository.isMember(groupId, inviterId)) {
-            throw new RuntimeException("초대 권한이 없습니다");
-        }
         if (groupRepository.isMember(groupId, targetUserId)) {
             throw new RuntimeException("이미 그룹에 속한 사용자입니다");
         }
@@ -53,5 +51,4 @@ public class GroupMemberServiceImpl implements GroupMemberService {
                 		member.getRole()))
                 .collect(Collectors.toList());
 	}
-
 }
