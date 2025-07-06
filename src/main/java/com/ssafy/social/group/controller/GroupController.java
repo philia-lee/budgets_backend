@@ -12,18 +12,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.ssafy.common.annotation.UserId;
 import com.ssafy.social.group.dto.request.CreateGroupRequest;
 import com.ssafy.social.group.entity.Group;
 import com.ssafy.social.group.service.GroupService;
-import com.ssafy.social.member.dto.request.AddGroupMemberRequest;
-import com.ssafy.social.member.dto.response.GroupMemberResponse;
-import com.ssafy.social.transaction.dto.request.GroupTransactionRequest;
-import com.ssafy.social.transaction.entity.GroupTransaction;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.web.bind.annotation.RequestBody;
+
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -34,20 +31,20 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/groups")
 @Tag(name = "그룹 관리", description = "그룹 CRUD")
-@RequiredArgsConstructor
 @SecurityRequirement(name = "JWT")
+@RequiredArgsConstructor
 public class GroupController {
 	private final GroupService groupService;
 	
 	// 그룹 생성
     @PostMapping
     @Operation(summary = "그룹 생성")
-    public ResponseEntity<?> createGroup( @RequestBody CreateGroupRequest request) {
-//        groupService.createGroup(userId, request.getGroupName());
-    	System.out.println(request.getName());
+    public ResponseEntity<?> createGroup(@UserId int userId, @RequestBody CreateGroupRequest request) {
+    	System.out.println("그룹 이름: " + request.getName());
+        groupService.createGroup(userId, request.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "그룹이 생성되었습니다"));
     }
-
+	
 	@GetMapping("/me")
 	@Operation(summary = "내가 속한 그룹 조회")
 	@ApiResponses({ @ApiResponse(responseCode = "200", description = "조회 성공"),
@@ -69,14 +66,14 @@ public class GroupController {
         return ResponseEntity.ok(group);
     }
 	
-//    @PutMapping("/{groupId}")
-//    @Operation(summary = "그룹 이름 수정")
-//    public ResponseEntity<?> updateGroup(@PathVariable int groupId,
-//                                         @UserId int userId,
-//                                         @RequestBody CreateGroupRequest request) {
-//        groupService.updateGroupName(groupId, userId, request.getGroupName());
-//        return ResponseEntity.ok(Map.of("message", "그룹 이름이 수정되었습니다"));
-//    }
+    @PutMapping("/{groupId}")
+    @Operation(summary = "그룹 이름 수정")
+    public ResponseEntity<?> updateGroup(@PathVariable int groupId,
+                                         @UserId int userId,
+                                         @RequestBody CreateGroupRequest request) {
+        groupService.updateGroupName(groupId, userId, request.getName());
+        return ResponseEntity.ok(Map.of("message", "그룹 이름이 수정되었습니다"));
+    }
     
     @DeleteMapping("/{groupId}")
     @Operation(summary = "그룹 삭제")
