@@ -20,6 +20,7 @@ import com.ssafy.social.group.entity.Group;
 import com.ssafy.social.group.service.GroupService;
 
 import io.swagger.v3.oas.annotations.Operation;
+
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
