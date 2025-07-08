@@ -44,12 +44,14 @@ public class GroupMemberController {
         groupMemberService.removeMember(groupId, userId, memberId);
         return ResponseEntity.ok(Map.of("message", "탈퇴 처리 완료"));
     }
-
-    @GetMapping
-    @Operation(summary = "그룹 멤버 전체 조회")
-    public ResponseEntity<?> listMembers(
+    
+    @GetMapping("/{memberId}")
+    @Operation(summary = "그룹 멤버 조회")
+    public ResponseEntity<GroupMemberResponse> getMember(
             @PathVariable int groupId,
+            @PathVariable int memberId,
             @UserId int userId) {
-        return ResponseEntity.ok(groupMemberService.getGroupMembers(groupId, userId));
+        GroupMemberResponse response = groupMemberService.getMember(groupId, memberId);
+        return ResponseEntity.ok(response);
     }
 }

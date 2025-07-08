@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import com.ssafy.social.group.dto.response.GroupDetailsResponse;
 import com.ssafy.social.group.entity.Group;
 import com.ssafy.social.member.dto.response.GroupMemberResponse;
 
@@ -50,6 +51,18 @@ public interface GroupRepository {
 				WHERE id = #{groupId}
 			""")
 	Group findById(@Param("groupId") int groupId);
+
+	// 해당 그룹에 속한 모든 멤버 조회
+	@Select("""
+				SELECT
+					gm.user_id AS userId,
+					u.nickname AS nickname,
+					gm.role AS role
+				FROM group_members gm
+				JOIN users u ON gm.user_id = u.id
+				WHERE gm.group_id = #{groupId}
+			""")
+	List<GroupDetailsResponse.MemberInfo> findGroupMembers(@Param("groupId") int groupId);
 
 	// 해당 그룹에 내가 속해 있는지 여부 확인
 	// 중복 가입 방지나 권한 확인

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.ssafy.common.annotation.UserId;
 import com.ssafy.social.group.dto.request.CreateGroupRequest;
+import com.ssafy.social.group.dto.response.GroupDetailsResponse;
 import com.ssafy.social.group.entity.Group;
 import com.ssafy.social.group.service.GroupService;
 
@@ -62,7 +63,7 @@ public class GroupController {
 	@GetMapping("/{groupId}")
 	@Operation(summary = "그룹 상세 조회")
     public ResponseEntity<?> getGroupDetails(@PathVariable int groupId, @UserId int userId) {
-        Group group = groupService.getGroupDetails(groupId, userId);
+		GroupDetailsResponse group = groupService.getGroupDetails(groupId, userId);
         return ResponseEntity.ok(group);
     }
 	
