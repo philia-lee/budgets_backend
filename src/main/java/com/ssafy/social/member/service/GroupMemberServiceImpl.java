@@ -21,11 +21,11 @@ public class GroupMemberServiceImpl implements GroupMemberService {
     private final GroupRepository groupRepository;
 
 	@Override
-	public void inviteMember(int groupId, int inviterId, int targetUserId) {
-        if (groupRepository.isMember(groupId, targetUserId)) {
+	public void inviteMember(int groupId, int inviterId, int targetId) {
+        if (groupRepository.isMember(groupId, targetId)) {
             throw new RuntimeException("이미 그룹에 속한 사용자입니다");
         }
-        groupMemberRepository.addMember(groupId, targetUserId, "MEMBER");
+        groupMemberRepository.addMember(groupId, targetId, "MEMBER");
 	}
 
 	@Override

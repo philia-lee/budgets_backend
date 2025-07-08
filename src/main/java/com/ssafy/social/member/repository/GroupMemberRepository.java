@@ -11,9 +11,9 @@ public interface GroupMemberRepository {
 
 	@Insert("""
 			    INSERT INTO group_members (group_id, user_id, role)
-			    VALUES (#{groupId}, #{userId}, #{role})
+			    VALUES (#{groupId}, #{targetId}, #{role})
 			""")
-	void addMember(@Param("groupId") int groupId, @Param("userId") int userId, @Param("role") String role);
+	void addMember(@Param("groupId") int groupId, @Param("targetId") int targetId, @Param("role") String role);
 
 	@Delete("""
 			    DELETE FROM group_members
