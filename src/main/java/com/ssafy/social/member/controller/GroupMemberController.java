@@ -6,7 +6,7 @@ import com.ssafy.social.member.dto.response.GroupMemberResponse;
 import com.ssafy.social.member.service.GroupMemberService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +29,9 @@ public class GroupMemberController {
     @Operation(summary = "그룹 멤버 초대")
     public ResponseEntity<?> inviteMember(
             @PathVariable int groupId,
-            @RequestBody AddGroupMemberRequest request,
-            @UserId int userId) {
-        groupMemberService.inviteMember(groupId, userId, request.getUserId());
+            @UserId int userId,
+            @RequestBody AddGroupMemberRequest request) {
+        groupMemberService.inviteMember(groupId, userId, request.getTargetId());
         return ResponseEntity.ok(Map.of("message", "초대가 완료되었습니다."));
     }
 
@@ -44,12 +44,14 @@ public class GroupMemberController {
         groupMemberService.removeMember(groupId, userId, memberId);
         return ResponseEntity.ok(Map.of("message", "탈퇴 처리 완료"));
     }
-
-    @GetMapping
-    @Operation(summary = "그룹 멤버 전체 조회")
-    public ResponseEntity<?> listMembers(
+    
+    @GetMapping("/{memberId}")
+    @Operation(summary = "특정 멤버 조회")
+    public ResponseEntity<GroupMemberResponse> getMember(
             @PathVariable int groupId,
+            @PathVariable int memberId,
             @UserId int userId) {
-        return ResponseEntity.ok(groupMemberService.getGroupMembers(groupId, userId));
+        GroupMemberResponse response = groupMemberService.getMember(groupId, memberId);
+        return ResponseEntity.ok(response);
     }
 }

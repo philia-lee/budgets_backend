@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ssafy.social.group.dto.response.GroupDetailsResponse;
 import com.ssafy.social.group.entity.Group;
 import com.ssafy.social.group.repository.GroupRepository;
 import com.ssafy.social.member.dto.response.GroupMemberResponse;
@@ -41,11 +42,29 @@ public class GroupServiceImpl implements GroupService {
 	}
 
 	@Override
-	public Group getGroupDetails(int groupId, int userId) {
+	public GroupDetailsResponse getGroupDetails(int groupId, int userId) {
 		if (!groupRepository.isMember(groupId, userId)) {
             throw new RuntimeException("해당 그룹에 접근 권한이 없습니다.");
         }
-        return groupRepository.findById(groupId);
+        
+		// 그룹 기본 정보 조회
+		Group group = groupRepository.findById(groupId);
+		if (group == null) {
+			throw new RuntimeException("그룹이 존재하지 않습니다.");
+		}
+
+		// 멤버 정보 조회
+		List<GroupDetailsResponse.MemberInfo> members = groupRepository.findGroupMembers(groupId);
+
+		// DTO 조립
+		GroupDetailsResponse response = new GroupDetailsResponse();
+		response.setGroupId(group.getId());
+		response.setGroupName(group.getName());
+		response.setOwnerId(group.getOwnerId());
+		response.setCreatedAt(group.getCreatedAt());
+		response.setMembers(members);
+
+		return response;
 	}
 
 	@Override

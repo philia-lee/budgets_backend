@@ -7,15 +7,15 @@ import java.util.List;
 
 @Data
 public class GroupDetailsResponse {
-    private Long groupId;
+    private int groupId;
     private String groupName;
-    private String description;
+    private int ownerId;
     private Date createdAt;
     private List<MemberInfo> members;
 
     @Data
     public static class MemberInfo {
-        private Long userId;
+        private int userId;
         private String nickname;
         private String role;
     }

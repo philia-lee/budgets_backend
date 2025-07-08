@@ -19,14 +19,13 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 	
 	private final GroupMemberRepository groupMemberRepository;
     private final GroupRepository groupRepository;
-    private final UserRepository userRepository;
 
 	@Override
-	public void inviteMember(int groupId, int inviterId, int targetUserId) {
-        if (groupRepository.isMember(groupId, targetUserId)) {
+	public void inviteMember(int groupId, int inviterId, int targetId) {
+        if (groupRepository.isMember(groupId, targetId)) {
             throw new RuntimeException("이미 그룹에 속한 사용자입니다");
         }
-        groupMemberRepository.addMember(groupId, targetUserId, "MEMBER");
+        groupMemberRepository.addMember(groupId, targetId, "MEMBER");
 	}
 
 	@Override
@@ -38,17 +37,11 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 	}
 
 	@Override
-	public List<GroupMemberResponse> getGroupMembers(int groupId, int requesterId) {
-		if (!groupRepository.isMember(groupId, requesterId)) {
-            throw new RuntimeException("조회 권한이 없습니다");
+	public GroupMemberResponse getMember(int groupId, int userId) {
+		GroupMemberResponse member = groupMemberRepository.findMember(groupId, userId);
+        if (member == null) {
+            throw new RuntimeException("해당 그룹에 해당 유저가 존재하지 않습니다.");
         }
-
-        return groupMemberRepository.findMembers(groupId)
-                .stream()
-                .map(member -> new GroupMemberResponse(
-                		member.getUserId(),
-                		groupMemberRepository.findNicknameById(member.getUserId()),
-                		member.getRole()))
-                .collect(Collectors.toList());
+        return member;
 	}
 }
