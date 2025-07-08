@@ -29,7 +29,7 @@ public class GroupMemberController {
     @Operation(summary = "그룹 멤버 초대")
     public ResponseEntity<?> inviteMember(
             @PathVariable int groupId,
-            @UserId int userId,
+            @UserId Long userId,
             @RequestBody AddGroupMemberRequest request) {
         groupMemberService.inviteMember(groupId, userId, request.getTargetId());
         return ResponseEntity.ok(Map.of("message", "초대가 완료되었습니다."));
@@ -39,8 +39,8 @@ public class GroupMemberController {
     @Operation(summary = "그룹 멤버 강퇴 or 자발적 탈퇴")
     public ResponseEntity<?> removeMember(
             @PathVariable int groupId,
-            @PathVariable int memberId,
-            @UserId int userId) {
+            @PathVariable Long memberId,
+            @UserId Long userId) {
         groupMemberService.removeMember(groupId, userId, memberId);
         return ResponseEntity.ok(Map.of("message", "탈퇴 처리 완료"));
     }
@@ -49,8 +49,8 @@ public class GroupMemberController {
     @Operation(summary = "특정 멤버 조회")
     public ResponseEntity<GroupMemberResponse> getMember(
             @PathVariable int groupId,
-            @PathVariable int memberId,
-            @UserId int userId) {
+            @PathVariable Long memberId,
+            @UserId Long userId) {
         GroupMemberResponse response = groupMemberService.getMember(groupId, memberId);
         return ResponseEntity.ok(response);
     }

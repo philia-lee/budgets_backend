@@ -1,18 +1,13 @@
 package com.ssafy.social.group.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.social.group.dto.response.GroupDetailsResponse;
 import com.ssafy.social.group.entity.Group;
 import com.ssafy.social.group.repository.GroupRepository;
-import com.ssafy.social.member.dto.response.GroupMemberResponse;
 import com.ssafy.social.member.repository.GroupMemberRepository;
-import com.ssafy.social.transaction.entity.GroupTransaction;
-import com.ssafy.social.transaction.repository.GroupTransactionRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +20,7 @@ public class GroupServiceImpl implements GroupService {
 	private final GroupMemberRepository groupMemberRepository;
 	
 	@Override
-	public void createGroup(int ownerId, String name) {
+	public void createGroup(Long ownerId, String name) {
 		Group group = new Group();
         group.setName(name);
         group.setOwnerId(ownerId);
@@ -37,12 +32,12 @@ public class GroupServiceImpl implements GroupService {
 	}
 
 	@Override
-	public List<Group> getGroupsByUserId(int userId) {
+	public List<Group> getGroupsByUserId(Long userId) {
 		return groupRepository.findGroupsByUserId(userId);
 	}
 
 	@Override
-	public GroupDetailsResponse getGroupDetails(int groupId, int userId) {
+	public GroupDetailsResponse getGroupDetails(int groupId, Long userId) {
 		if (!groupRepository.isMember(groupId, userId)) {
             throw new RuntimeException("해당 그룹에 접근 권한이 없습니다.");
         }
@@ -68,7 +63,7 @@ public class GroupServiceImpl implements GroupService {
 	}
 
 	@Override
-	public void updateGroupName(int groupId, int userId, String newName) {
+	public void updateGroupName(int groupId, Long userId, String newName) {
 		Group group = groupRepository.findById(groupId);
         if (group.getOwnerId() != userId) {
             throw new RuntimeException("그룹장만 이름을 수정할 수 있습니다.");
@@ -77,7 +72,7 @@ public class GroupServiceImpl implements GroupService {
 	}
 
 	@Override
-	public void deleteGroup(int groupId, int userId) {
+	public void deleteGroup(int groupId, Long userId) {
 		Group group = groupRepository.findById(groupId);
         if (group.getOwnerId() != userId) {
             throw new RuntimeException("그룹을 삭제할 권한이 없습니다.");
