@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class UserBalance {
-    private int userId;
+    private Long userId;
     private BigDecimal amount;
 }
 

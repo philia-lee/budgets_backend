@@ -8,8 +8,8 @@ import lombok.Getter;
 @Getter 
 @AllArgsConstructor
 public class SettlementResponse {
-    private int fromUserId;
-    private int toUserId;
+    private Long fromUserId;
+    private Long toUserId;
     private BigDecimal amount;
 }
 

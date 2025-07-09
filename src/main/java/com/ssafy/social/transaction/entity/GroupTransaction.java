@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class GroupTransaction {
     private int id;
     private int groupId;
-    private int userId;
+    private Long userId;
     private String type;  // 'INCOME' or 'EXPENSE'
     private BigDecimal amount;
     private int categoryId;
