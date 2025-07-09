@@ -29,6 +29,7 @@ public class TransactionService {
 								  .amount(request.getAmount())
 								  .type(request.getType())
 								  .description(request.getDescription())
+								  .category_id(request.getCategory_id())
 								  .date(request.getDate())
 								  .build();
 		transactionRepository.save(userId,transaction);
