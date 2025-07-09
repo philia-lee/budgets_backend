@@ -1,5 +1,8 @@
 package com.ssafy.transaction.repository;
 
+import java.util.Date;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -9,6 +12,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import com.ssafy.budget.entity.Budget;
+import com.ssafy.transaction.dto.TransactionResponse;
 import com.ssafy.transaction.entity.Transaction;
 
 @Mapper
@@ -38,8 +42,10 @@ public interface TransactionRepository {
 	        WHERE id = #{id} AND user_id = #{userId}
 	        """)
 	void update(@Param("userId") Long userId, @Param("id") Long id, @Param("transaction") Transaction transaction);
-	
+	 
 	@Delete("DELETE FROM transactions  WHERE id = #{id} AND user_id = #{userId}")
 	void delete(@Param("userId") Long userId, @Param("id") Long id);
-	
+
+	@Select("SELECT id,user_id, type, amount, category_id, description, date FROM transactions WHERE id= #{id}")
+	List<TransactionResponse> allshow(Long userId);
 }
