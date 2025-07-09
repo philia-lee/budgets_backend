@@ -5,8 +5,7 @@ import java.util.Date;
 import lombok.Data;
 
 @Data
-public class profileResponse {
-	String email;
+public class profileRequest {
 	String nickname;
 	Date birthdate;
 	String gender;

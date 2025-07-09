@@ -31,7 +31,7 @@ public class CategoryService {
 							
 	}
 	
-	@Transactional
+	@Transactional(readOnly = true) 
 	public List<CategoryResponse>  allshow(Long userId)
 	{
 		List<CategoryResponse> category = repository.findAllCategory(userId);

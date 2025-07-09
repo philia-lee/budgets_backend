@@ -63,7 +63,7 @@ public class TransactionService {
     	
 	}
 	
-	@Transactional
+	@Transactional(readOnly = true) 
 	public List<TransactionResponse> allshow(Long userId)
 	{
 		

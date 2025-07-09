@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
+import com.ssafy.user.dto.profileRequest;
 import com.ssafy.user.dto.profileResponse;
 import com.ssafy.user.entity.User;
 
@@ -32,7 +33,27 @@ public interface UserRepository{
 	@Update("UPDATE users SET refresh_token = #{refresh_token} WHERE id = #{id}")
 	void updateRefreshToken(User user);
 	
-	@Select("SELECT email, nickname, birthdate, gender FROM users")
-	List<profileResponse> profile(Long userId);
+	@Select("SELECT email, nickname, birthdate, gender FROM users WHERE id= #{id}")
+	profileResponse profile(@Param("id")Long userId);
 	
+	
+	@Update("""
+	        <script>
+	        UPDATE users
+	        <set>
+	            <if test='profileRequest.nickname != null and !profileRequest.nickname.trim().isEmpty()'>
+	                nickname = #{profileRequest.nickname},
+	            </if>
+	            <if test='profileRequest.birthdate != null'>
+	                birthdate = #{profileRequest.birthdate},
+	            </if>
+	            <if test='profileRequest.gender != null and !profileRequest.gender.trim().isEmpty()'>
+	                gender = #{profileRequest.gender},
+	            </if>
+	            id = id
+	        </set>
+	        WHERE id = #{userId}
+	        </script>
+	        """)
+	void updateUserProfile(@Param("userId") Long userId, @Param("profileRequest") profileRequest profileRequest);
 }
