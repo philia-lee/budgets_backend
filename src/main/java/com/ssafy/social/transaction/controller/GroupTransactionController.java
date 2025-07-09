@@ -8,7 +8,6 @@ import com.ssafy.social.transaction.entity.GroupTransaction;
 import com.ssafy.social.transaction.service.GroupTransactionService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -39,9 +38,12 @@ public class GroupTransactionController {
 		@ApiResponse(responseCode = "500", description = "생성 실패"), })
     public ResponseEntity<?> createGroupTransaction(
             @PathVariable int groupId,
-            @UserId int userId,
+            @UserId Long userId,
             @RequestBody GroupTransactionRequest request) {
-
+    	System.out.println(userId);
+    	
+    	System.out.println(request.toString());
+    	
     	GroupTransaction transaction = toEntity(request);
         transaction.setGroupId(groupId);
         transaction.setUserId(userId);
@@ -57,7 +59,7 @@ public class GroupTransactionController {
     public ResponseEntity<?> updateGroupTransaction(
             @PathVariable int groupId,
             @PathVariable int transactionId,
-            @UserId int userId,
+            @UserId Long userId,
             @RequestBody GroupTransactionRequest request) {
 
     	GroupTransaction transaction = toEntity(request);
@@ -83,7 +85,7 @@ public class GroupTransactionController {
     @GetMapping("/user")
     @Operation(summary = "내가 등록한 거래 조회")
     public ResponseEntity<List<GroupTransactionResponse>> getByUser(@PathVariable int groupId,
-                                                                    @UserId int userId) {
+                                                                    @UserId Long userId) {
         List<GroupTransaction> list = service.getTransactionsByGroupAndUser(groupId, userId);
         return ResponseEntity.ok(toResponseList(list));
     }
@@ -117,12 +119,10 @@ public class GroupTransactionController {
     // 변환 메서드
     private GroupTransaction toEntity(GroupTransactionRequest request) {
         GroupTransaction entity = new GroupTransaction();
-        entity.setId(request.getId());
         entity.setType(request.getType());
         entity.setAmount(request.getAmount());
         entity.setCategoryId(request.getCategoryId());
         entity.setDescription(request.getDescription());
-        entity.setDate(request.getDate());
         return entity;
     }
     
