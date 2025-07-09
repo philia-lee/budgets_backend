@@ -1,10 +1,12 @@
 package com.ssafy.user.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
+import com.ssafy.user.dto.profileResponse;
 import com.ssafy.user.entity.User;
 
 @Mapper
@@ -30,5 +32,7 @@ public interface UserRepository{
 	@Update("UPDATE users SET refresh_token = #{refresh_token} WHERE id = #{id}")
 	void updateRefreshToken(User user);
 	
+	@Select("SELECT email, nickname, birthdate, gender FROM users")
+	List<profileResponse> profile(Long userId);
 	
 }
