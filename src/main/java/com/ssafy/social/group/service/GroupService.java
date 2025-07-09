@@ -6,13 +6,13 @@ import com.ssafy.social.group.dto.response.GroupDetailsResponse;
 import com.ssafy.social.group.entity.Group;
 
 public interface GroupService {
-	void createGroup(int ownerId, String groupName);
+	void createGroup(Long ownerId, String groupName);
 
-    List<Group> getGroupsByUserId(int userId);
+    List<Group> getGroupsByUserId(Long userId);
 
-    GroupDetailsResponse getGroupDetails(int groupId, int requesterId);
+    GroupDetailsResponse getGroupDetails(int groupId, Long requesterId);
 
-    void updateGroupName(int groupId, int userId, String newName);
+    void updateGroupName(int groupId, Long userId, String newName);
 
-    void deleteGroup(int groupId, int userId);
+    void deleteGroup(int groupId, Long userId);
 }

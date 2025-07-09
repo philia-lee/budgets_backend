@@ -23,7 +23,7 @@ public class GroupTransactionService {
 	private final GroupTransactionRepository transactionRepository;
 
 	// 거래 등록
-	public void createTransaction(int groupId, int userId, GroupTransaction transaction) {
+	public void createTransaction(int groupId, Long userId, GroupTransaction transaction) {
 		transaction.setGroupId(groupId);
 		transaction.setUserId(userId);
 		transactionRepository.insertGroupTransaction(transaction);
@@ -40,7 +40,7 @@ public class GroupTransactionService {
 	}
 
 	// 특정 사용자 거래 조회
-	public List<GroupTransaction> getTransactionsByGroupAndUser(int groupId, int userId) {
+	public List<GroupTransaction> getTransactionsByGroupAndUser(int groupId, Long userId) {
 		return transactionRepository.findByGroupAndUser(groupId, userId);
 	}
 

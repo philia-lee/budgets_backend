@@ -21,7 +21,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
     private final GroupRepository groupRepository;
 
 	@Override
-	public void inviteMember(int groupId, int inviterId, int targetId) {
+	public void inviteMember(int groupId, Long inviterId, Long targetId) {
         if (groupRepository.isMember(groupId, targetId)) {
             throw new RuntimeException("이미 그룹에 속한 사용자입니다");
         }
@@ -29,7 +29,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 	}
 
 	@Override
-	public void removeMember(int groupId, int requesterId, int targetUserId) {
+	public void removeMember(int groupId, Long requesterId, Long targetUserId) {
 		if (!groupRepository.isMember(groupId, requesterId)) {
             throw new RuntimeException("탈퇴 권한이 없습니다");
         }
@@ -37,7 +37,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
 	}
 
 	@Override
-	public GroupMemberResponse getMember(int groupId, int userId) {
+	public GroupMemberResponse getMember(int groupId, Long userId) {
 		GroupMemberResponse member = groupMemberRepository.findMember(groupId, userId);
         if (member == null) {
             throw new RuntimeException("해당 그룹에 해당 유저가 존재하지 않습니다.");

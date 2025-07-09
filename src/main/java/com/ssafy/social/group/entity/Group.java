@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 public class Group {
 	private int id;
 	private String name;
-	private int ownerId;
+	private long ownerId;
 	private Date createdAt;
 }

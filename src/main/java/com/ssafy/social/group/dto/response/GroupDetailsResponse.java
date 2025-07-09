@@ -9,13 +9,13 @@ import java.util.List;
 public class GroupDetailsResponse {
     private int groupId;
     private String groupName;
-    private int ownerId;
+    private Long ownerId;
     private Date createdAt;
     private List<MemberInfo> members;
 
     @Data
     public static class MemberInfo {
-        private int userId;
+        private Long userId;
         private String nickname;
         private String role;
     }
