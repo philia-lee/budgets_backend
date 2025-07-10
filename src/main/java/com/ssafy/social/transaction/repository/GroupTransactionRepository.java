@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -18,8 +19,9 @@ public interface GroupTransactionRepository {
 
 	@Insert("""
 			    INSERT INTO group_transactions (group_id, user_id, type, amount, category_id, description, date)
-			    VALUES (#{groupId}, #{userId}, #{type}, #{amount}, #{categoryId}, #{description}, #{date})
+			    VALUES (#{groupId}, #{userId}, #{type}, #{amount}, #{categoryId}, #{description}, now())
 			""")
+	@Options(useGeneratedKeys = true, keyProperty = "id")
 	void insertGroupTransaction(GroupTransaction transaction);
 
 	// 특정 그룹의 전체 거래 내역 조회
@@ -36,7 +38,7 @@ public interface GroupTransactionRepository {
 			    WHERE group_id = #{groupId} AND user_id = #{userId}
 			    ORDER BY date DESC
 			""")
-	List<GroupTransaction> findByGroupAndUser(@Param("groupId") int groupId, @Param("userId") int userId);
+	List<GroupTransaction> findByGroupAndUser(@Param("groupId") int groupId, @Param("userId") Long userId);
 
 	// 특정 날짜 범위 조회
 	@Select("""
@@ -51,7 +53,7 @@ public interface GroupTransactionRepository {
 	@Update("""
 			    UPDATE group_transactions
 			    SET type = #{type}, amount = #{amount}, category_id = #{categoryId},
-			        description = #{description}, date = #{date}
+			        description = #{description}
 			    WHERE id = #{id} AND group_id = #{groupId}
 			""")
 	void updateGroupTransaction(GroupTransaction transaction);

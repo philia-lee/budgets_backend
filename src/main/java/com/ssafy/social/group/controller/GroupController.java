@@ -40,7 +40,7 @@ public class GroupController {
 	// 그룹 생성
     @PostMapping
     @Operation(summary = "그룹 생성")
-    public ResponseEntity<?> createGroup(@UserId int userId, @RequestBody CreateGroupRequest request) {
+    public ResponseEntity<?> createGroup(@UserId Long userId, @RequestBody CreateGroupRequest request) {
     	System.out.println("그룹 이름: " + request.getName());
         groupService.createGroup(userId, request.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "그룹이 생성되었습니다"));
@@ -51,8 +51,11 @@ public class GroupController {
 	@ApiResponses({ @ApiResponse(responseCode = "200", description = "조회 성공"),
 			@ApiResponse(responseCode = "204", description = "조회는 성공했으나 정보가 없음"),
 			@ApiResponse(responseCode = "500", description = "조회 실패"), })
-	public ResponseEntity<?> getMyGroups(@UserId int userId) {
+	public ResponseEntity<?> getMyGroups(@UserId Long userId) {
 		try {
+			if (userId == null) {
+		        System.out.println("로그인 필요");;
+		    }
 			List<Group> groups = groupService.getGroupsByUserId(userId);
 	        return ResponseEntity.ok(groups);
 		} catch (Exception e) {
@@ -62,7 +65,7 @@ public class GroupController {
 	
 	@GetMapping("/{groupId}")
 	@Operation(summary = "그룹 상세 조회")
-    public ResponseEntity<?> getGroupDetails(@PathVariable int groupId, @UserId int userId) {
+    public ResponseEntity<?> getGroupDetails(@PathVariable int groupId, @UserId Long userId) {
 		GroupDetailsResponse group = groupService.getGroupDetails(groupId, userId);
         return ResponseEntity.ok(group);
     }
@@ -70,7 +73,7 @@ public class GroupController {
     @PutMapping("/{groupId}")
     @Operation(summary = "그룹 이름 수정")
     public ResponseEntity<?> updateGroup(@PathVariable int groupId,
-                                         @UserId int userId,
+                                         @UserId Long userId,
                                          @RequestBody CreateGroupRequest request) {
         groupService.updateGroupName(groupId, userId, request.getName());
         return ResponseEntity.ok(Map.of("message", "그룹 이름이 수정되었습니다"));
@@ -78,7 +81,7 @@ public class GroupController {
     
     @DeleteMapping("/{groupId}")
     @Operation(summary = "그룹 삭제")
-    public ResponseEntity<?> deleteGroup(@PathVariable int groupId, @UserId int userId) {
+    public ResponseEntity<?> deleteGroup(@PathVariable int groupId, @UserId Long userId) {
         groupService.deleteGroup(groupId, userId);
         return ResponseEntity.ok(Map.of("message", "그룹이 삭제되었습니다"));
     }

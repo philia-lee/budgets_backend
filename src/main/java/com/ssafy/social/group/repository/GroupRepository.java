@@ -42,7 +42,7 @@ public interface GroupRepository {
 				JOIN group_members gm ON ug.id = gm.group_id
 				WHERE gm.user_id = #{userId}
 			""")
-	List<Group> findGroupsByUserId(@Param("userId") int userId);
+	List<Group> findGroupsByUserId(@Param("userId") Long userId);
 
 	// 그룹ID로 특정 그룹 상세정보 가져오기
 	@Select("""
@@ -71,5 +71,5 @@ public interface GroupRepository {
 				FROM group_members
 				WHERE group_id = #{groupId} AND user_id = #{userId}
 			""")
-	boolean isMember(@Param("groupId") int groupId, @Param("userId") int userId);
+	boolean isMember(@Param("groupId") int groupId, @Param("userId") Long userId);
 }

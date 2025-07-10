@@ -8,6 +8,6 @@ import lombok.Setter;
 @Getter 
 @Setter
 public class UserSpending {
-    private int userId;
+    private Long userId;
     private BigDecimal total;
 }

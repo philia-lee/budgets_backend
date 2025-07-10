@@ -1,11 +1,14 @@
 package com.ssafy.transaction.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.auth.exception.ErrorCode;
 import com.ssafy.auth.exception.exception.BusinessException;
 import com.ssafy.transaction.dto.CreateTransactionRequest;
+import com.ssafy.transaction.dto.TransactionResponse;
 import com.ssafy.transaction.dto.UpdateTransaction;
 import com.ssafy.transaction.entity.Transaction;
 import com.ssafy.transaction.repository.TransactionRepository;
@@ -59,4 +62,12 @@ public class TransactionService {
     	transactionRepository.delete(userId, id);
     	
 	}
+	
+	@Transactional(readOnly = true) 
+	public List<TransactionResponse> allshow(Long userId)
+	{
+		
+		return  transactionRepository.allshow(userId);
+	}
+	
 }
