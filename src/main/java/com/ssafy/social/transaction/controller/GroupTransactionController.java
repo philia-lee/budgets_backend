@@ -3,6 +3,7 @@ package com.ssafy.social.transaction.controller;
 import com.ssafy.social.group.service.GroupService;
 import com.ssafy.social.transaction.dto.request.GroupTransactionRequest;
 import com.ssafy.social.transaction.dto.response.GroupTransactionResponse;
+import com.ssafy.social.transaction.dto.response.MonthlySummaryResponse;
 import com.ssafy.social.transaction.dto.response.SettlementResponse;
 import com.ssafy.social.transaction.entity.GroupTransaction;
 import com.ssafy.social.transaction.service.GroupTransactionService;
@@ -115,6 +116,17 @@ public class GroupTransactionController {
         List<SettlementResponse> result = service.calculateSettlement(groupId);
         return ResponseEntity.ok(result);
     }
+    
+    @GetMapping("/summary")
+    @Operation(summary = "이번달 총 지출 및 내 지출", description = "이번 달 그룹의 총 지출과 본인의 지출을 반환합니다.")
+    public ResponseEntity<MonthlySummaryResponse> getMonthlySummary(
+            @PathVariable int groupId,
+            @UserId Long userId) {
+
+        MonthlySummaryResponse result = service.calculateMonthlySummary(groupId, userId);
+        return ResponseEntity.ok(result);
+    }
+
 
     // 변환 메서드
     private GroupTransaction toEntity(GroupTransactionRequest request) {

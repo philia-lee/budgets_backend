@@ -2,6 +2,7 @@ package com.ssafy.social.transaction.repository;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -49,6 +50,19 @@ public interface GroupTransactionRepository {
 			""")
 	List<GroupTransaction> findByDateRange(@Param("groupId") int groupId, @Param("startDate") Date startDate,
 			@Param("endDate") Date endDate);
+
+	@Select("""
+			    SELECT
+			        COALESCE(SUM(amount), 0) AS totalExpense,
+			        COALESCE(SUM(CASE WHEN user_id = #{userId} THEN amount ELSE 0 END), 0) AS myExpense
+			    FROM group_transactions
+			    WHERE group_id = #{groupId}
+			      AND type = 'EXPENSE'
+			      AND YEAR(date) = #{year}
+			      AND MONTH(date) = #{month}
+			""")
+	Map<String, Object> findMonthlySummary(@Param("groupId") int groupId, @Param("userId") Long userId,
+			@Param("year") int year, @Param("month") int month);
 
 	@Update("""
 			    UPDATE group_transactions
