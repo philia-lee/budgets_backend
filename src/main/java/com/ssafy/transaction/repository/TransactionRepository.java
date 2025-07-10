@@ -1,11 +1,8 @@
 package com.ssafy.transaction.repository;
 
-<<<<<<< HEAD
 import java.time.LocalDate;
-=======
 import java.util.Date;
 import java.util.List;
->>>>>>> 3695dbf009af29e71d0fc912fef3320861a2677c
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -21,34 +18,33 @@ import com.ssafy.transaction.entity.Transaction;
 
 @Mapper
 public interface TransactionRepository {
-
-<<<<<<< HEAD
-    @Insert("""
-        INSERT INTO transactions
-        (user_id, type, amount, category_id, description, date)
-        VALUES
-        (#{userId}, #{transaction.type}, #{transaction.amount}, #{transaction.category_id}, #{transaction.description}, #{transaction.date})
-        """)
+	
+	@Insert("""
+            INSERT INTO transactions
+            (user_id, type, amount, category_id, description, date)
+            VALUES
+            (#{userId}, #{transaction.type}, #{transaction.amount}, #{transaction.category_id}, #{transaction.description}, #{transaction.date})
+            """)
     @Options(useGeneratedKeys = true, keyProperty = "transaction.id")
     void save(@Param("userId") Long userId,
-              @Param("transaction") Transaction transaction);
-
-    @Select("SELECT count(*) FROM transactions WHERE id = #{id} and user_id = #{userId}")
-    Boolean existsByIdAndUserId(@Param("userId") Long userId, @Param("id") Long id);
-
+            @Param("transaction") Transaction transaction);
+    
+    @Select("SELECT count(*) FROM transactions WHERE id = #{id} and user_id=#{userId}")
+    Boolean existsByIdAndUserId(@Param("userId") Long userId,@Param("id") Long id);
+    
     @Update("""
-        UPDATE transactions
-        SET
-            category_id = #{transaction.category_id},
-            type = #{transaction.type},
-            amount = #{transaction.amount},
-            description = #{transaction.description},
-            date = #{transaction.date}
-        WHERE id = #{id} AND user_id = #{userId}
-        """)
+            UPDATE transactions
+            SET
+                category_id = #{transaction.category_id},
+                type = #{transaction.type},
+                amount = #{transaction.amount},
+                description = #{transaction.description},
+                date = #{transaction.date}
+            WHERE id = #{id} AND user_id = #{userId}
+            """)
     void update(@Param("userId") Long userId, @Param("id") Long id, @Param("transaction") Transaction transaction);
-
-    @Delete("DELETE FROM transactions WHERE id = #{id} AND user_id = #{userId}")
+    
+    @Delete("DELETE FROM transactions  WHERE id = #{id} AND user_id = #{userId}")
     void delete(@Param("userId") Long userId, @Param("id") Long id);
 
     // ✅ 이번 달 지출 합계 계산 메서드
@@ -64,37 +60,8 @@ public interface TransactionRepository {
                                      @Param("categoryId") Integer categoryId,
                                      @Param("startDate") LocalDate startDate,
                                      @Param("endDate") LocalDate endDate);
-}
-=======
-	@Insert("""
-	        INSERT INTO transactions
-	        (user_id, type, amount, category_id, description, date)
-	        VALUES
-	        (#{userId}, #{transaction.type}, #{transaction.amount}, #{transaction.category_id}, #{transaction.description}, #{transaction.date})
-	        """)
-	@Options(useGeneratedKeys = true, keyProperty = "transaction.id")
-	void save(@Param("userId") Long userId,
-			@Param("transaction") Transaction transaction);
-	
-	@Select("SELECT count(*) FROM transactions WHERE id = #{id} and user_id=#{userId}")
-	Boolean existsByIdAndUserId(@Param("userId") Long userId,@Param("id") Long id);
-	
-	@Update("""
-	        UPDATE transactions
-	        SET
-	            category_id = #{transaction.category_id},
-	            type = #{transaction.type},
-	            amount = #{transaction.amount},
-	            description = #{transaction.description},
-	            date = #{transaction.date}
-	        WHERE id = #{id} AND user_id = #{userId}
-	        """)
-	void update(@Param("userId") Long userId, @Param("id") Long id, @Param("transaction") Transaction transaction);
-	 
-	@Delete("DELETE FROM transactions  WHERE id = #{id} AND user_id = #{userId}")
-	void delete(@Param("userId") Long userId, @Param("id") Long id);
+
 
 	@Select("SELECT id,user_id, type, amount, category_id, description, date FROM transactions WHERE id= #{id}")
 	List<TransactionResponse> allshow(Long userId);
 }
->>>>>>> 3695dbf009af29e71d0fc912fef3320861a2677c
