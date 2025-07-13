@@ -3,6 +3,7 @@ package com.ssafy.user.entity;
 import java.sql.Date;
 import java.time.LocalDateTime;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.ssafy.auth.jwt.Token.RefreshToken;

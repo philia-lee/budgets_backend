@@ -8,7 +8,8 @@ import com.ssafy.budget.entity.Budget;
 import com.ssafy.budget.repository.BudgetRepository;
 import com.ssafy.notification.entity.Notification;
 import com.ssafy.notification.repository.NotificationRepository;
-// 예산/일림 관현 entity와 repository를 가져옴.
+import com.ssafy.transaction.repository.TransactionRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,84 +17,86 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
-@Service // 이 클래스가 비즈니스 로직을 처리하는 서비스 계층임을 의미
-@RequiredArgsConstructor // final 필드애 대한 생성자 자동 생성
+@Service
+@RequiredArgsConstructor
 public class BudgetService {
 
     private final BudgetRepository budgetRepository;
     private final NotificationRepository notificationRepository;
-    // 예산 정보 및 알림을 처리하기 위한 repository 주입
-    
-    @Transactional
-    public void createBudget(Long userId,CreateBudgetRequest request)
-    {
+    private final TransactionRepository transactionRepository;
 
-    	Budget budget = Budget.builder()
+    @Transactional
+    public void createBudget(Long userId, CreateBudgetRequest request) {
+    	System.out.println("asd"+request.getStartDate());
+        Budget budget = Budget.builder()
+                .user_id(userId)
+                .category_id(request.getCategory_id())
+                .amount(request.getAmount())
+                .start_date(request.getStartDate()) // [수정] camelCase → snake_case
+                .end_date(request.getEndDate())     // [수정] camelCase → snake_case
+                .build();
+        budgetRepository.save(budget);
+    }
+
+    @Transactional
+    public void deleteBudget(Long userId, Long budgetId) {
+        Boolean existingBudget = budgetRepository.existsByIdAndUserId(userId, budgetId);
+        if (!existingBudget) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED);
+        }
+        budgetRepository.delete(userId, budgetId);
+    }
+
+    @Transactional
+    public void updateBudget(Long userId, Long budgetId, UpdateBudgetRequest request) {
+        Boolean existingBudget = budgetRepository.existsByIdAndUserId(userId, budgetId);
+        if (!existingBudget) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED);
+        }
+        Budget budget = Budget.builder()
+                .id(budgetId)
                 .user_id(userId)
                 .category_id(request.getCategory_id())
                 .amount(request.getAmount())
                 .start_date(request.getStartDate())
                 .end_date(request.getEndDate())
                 .build();
-    	
-    	budgetRepository.save(budget);
+        budgetRepository.update(budget, budgetId, userId);
     }
-    
+
     @Transactional
-    public void deleteBudget(Long userId,Long budgetId)
-    {
-    	Boolean existingBudget = budgetRepository.existsByIdAndUserId(userId, budgetId);
-    	if (!existingBudget) {
-            throw new BusinessException(ErrorCode.ACCESS_DENIED);
-        }
-    	budgetRepository.delete(userId,budgetId);
-    }
-    
-    
-    @Transactional
-    public void updateBudget(Long userId,Long budgetId,UpdateBudgetRequest request)
-    {
-    	//존재하지 않는 것이면 
-    	Boolean existingBudget = budgetRepository.existsByIdAndUserId(userId, budgetId);
-    	if (!existingBudget) {
-            throw new BusinessException(ErrorCode.ACCESS_DENIED);
-        }
-    	Budget budget = Budget.builder()
-    			.id(budgetId)
-                .user_id(userId)
-                .category_id(request.getCategory_id())
-                .amount(request.getAmount())
-                .start_date(request.getStartDate())
-                .end_date(request.getEndDate())
-                .build();
-    	budgetRepository.update(budget, budgetId, userId);
-    }
-    
-    @Transactional // 이 메서드는 하나의 트랜잭션으로 실행되어야 함.
     public void checkAndNotifyBudgetOver(Long userId, String category, int totalSpending) {
-    	// 특정 유저의 카테고리별 사용금액이 예산을 초과횄는지 검사하고, 초과 시 알림 생성
         List<Budget> budgets = budgetRepository.findByUserId(userId);
-        // 해당 유저의 모든 예산 목록을 가져옴
-
         for (Budget budget : budgets) {
-        	// 각각의 예산에 대해 반복 실행
             if (budget.getCategory_id().equals(category)
                     && LocalDate.now().isAfter(budget.getStart_date().minusDays(1))
                     && LocalDate.now().isBefore(budget.getEnd_date().plusDays(1))
                     && totalSpending > budget.getAmount()) {
-            	// 조건. 카테고리 일치하고, 예산 기간 내(StartDate~EndDate)에 있고, 사용 금액이 설정 금액보다 크다면
-
-                Notification alarm = Notification.builder() // 초과 알림용 notification 객체 생성
+                Notification alarm = Notification.builder()
                         .userId(userId)
                         .message("[" + category + "] 예산 초과 알림입니다!")
                         .type("BUDGET_OVER")
                         .isRead(false)
-                        .createdAt(java.time.LocalDateTime.now())  // 시간까지 넣고 싶으면 now() 그대로 사용
+                        .createdAt(java.time.LocalDateTime.now())
                         .build();
-
-                notificationRepository.save(alarm); // 알림을 DB에 저장
+                notificationRepository.save(alarm);
             }
-     
         }
+    }
+
+    // ✅ used_amount 채워서 예산 반환
+    @Transactional(readOnly = true)
+    public List<Budget> getBudgetsWithUsage(Long userId) {
+        List<Budget> budgets = budgetRepository.findByUserId(userId);
+        for (Budget budget : budgets) {
+            Integer totalSpent = transactionRepository.getTotalSpentForCategory(
+                    userId,
+                    budget.getCategory_id(),
+                    budget.getStart_date(),
+                    budget.getEnd_date()
+            );
+            budget.setUsed_amount(totalSpent);
+        }
+        return budgets;
     }
 }

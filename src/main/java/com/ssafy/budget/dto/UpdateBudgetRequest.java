@@ -11,6 +11,6 @@ import java.time.LocalDate;
 public class UpdateBudgetRequest {
     private Integer category_id;
     private Integer amount;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDate startDate; // [수정] camelCase
+    private LocalDate endDate;   // [수정] camelCase
 }
