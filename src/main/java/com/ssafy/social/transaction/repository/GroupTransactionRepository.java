@@ -49,6 +49,13 @@ public interface GroupTransactionRepository {
 			""")
 	GroupTransaction findById(@Param("groupId") int groupId, @Param("transactionId") int transactionId);
 
+	// 해당 그룹의 모든 거래 삭제
+	@Delete("""
+			    DELETE FROM group_transactions
+			    WHERE group_id = #{groupId}
+			""")
+	void deleteAllByGroupId(@Param("groupId") int groupId);
+
 	// 특정 날짜 범위 조회
 	@Select("""
 			    SELECT * FROM group_transactions
