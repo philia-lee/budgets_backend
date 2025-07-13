@@ -2,6 +2,7 @@ package com.ssafy.social.transaction.repository;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -26,7 +27,7 @@ public interface GroupTransactionRepository {
 
 	// 특정 그룹의 전체 거래 내역 조회
 	@Select("""
-			    SELECT id, group_id, user_id, type, amount, category_id, description, date
+			    SELECT id, group_id as groupId, user_id as userId, type, amount, category_id as categoryId, description, date
 			    FROM group_transactions
 			    WHERE group_id = #{groupId}
 			""")
@@ -40,6 +41,21 @@ public interface GroupTransactionRepository {
 			""")
 	List<GroupTransaction> findByGroupAndUser(@Param("groupId") int groupId, @Param("userId") Long userId);
 
+	// 해당 거래 조회
+	@Select("""
+			    SELECT id, group_id as groupId, user_id as userId, type, amount, category_id as categoryId, description, date
+			    FROM group_transactions
+			    WHERE group_id = #{groupId} AND id = #{transactionId}
+			""")
+	GroupTransaction findById(@Param("groupId") int groupId, @Param("transactionId") int transactionId);
+
+	// 해당 그룹의 모든 거래 삭제
+	@Delete("""
+			    DELETE FROM group_transactions
+			    WHERE group_id = #{groupId}
+			""")
+	void deleteAllByGroupId(@Param("groupId") int groupId);
+
 	// 특정 날짜 범위 조회
 	@Select("""
 			    SELECT * FROM group_transactions
@@ -50,10 +66,23 @@ public interface GroupTransactionRepository {
 	List<GroupTransaction> findByDateRange(@Param("groupId") int groupId, @Param("startDate") Date startDate,
 			@Param("endDate") Date endDate);
 
+	@Select("""
+			    SELECT
+			        COALESCE(SUM(amount), 0) AS totalExpense,
+			        COALESCE(SUM(CASE WHEN user_id = #{userId} THEN amount ELSE 0 END), 0) AS myExpense
+			    FROM group_transactions
+			    WHERE group_id = #{groupId}
+			      AND type = 'EXPENSE'
+			      AND YEAR(date) = #{year}
+			      AND MONTH(date) = #{month}
+			""")
+	Map<String, Object> findMonthlySummary(@Param("groupId") int groupId, @Param("userId") Long userId,
+			@Param("year") int year, @Param("month") int month);
+
 	@Update("""
 			    UPDATE group_transactions
 			    SET type = #{type}, amount = #{amount}, category_id = #{categoryId},
-			        description = #{description}
+			        description = #{description}, date = #{date}
 			    WHERE id = #{id} AND group_id = #{groupId}
 			""")
 	void updateGroupTransaction(GroupTransaction transaction);

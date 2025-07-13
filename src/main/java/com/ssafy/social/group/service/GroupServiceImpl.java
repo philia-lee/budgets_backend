@@ -8,6 +8,7 @@ import com.ssafy.social.group.dto.response.GroupDetailsResponse;
 import com.ssafy.social.group.entity.Group;
 import com.ssafy.social.group.repository.GroupRepository;
 import com.ssafy.social.member.repository.GroupMemberRepository;
+import com.ssafy.social.transaction.repository.GroupTransactionRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +19,8 @@ public class GroupServiceImpl implements GroupService {
 	private final GroupRepository groupRepository;
 	
 	private final GroupMemberRepository groupMemberRepository;
+	
+	private final GroupTransactionRepository groupTransactionRepository;
 	
 	@Override
 	public void createGroup(Long ownerId, String name) {
@@ -77,8 +80,12 @@ public class GroupServiceImpl implements GroupService {
         if (group.getOwnerId() != userId) {
             throw new RuntimeException("그룹을 삭제할 권한이 없습니다.");
         }
-        // 먼저 모든 멤버를 삭제해야함
+        
+        // 그룹의 모든 트랜잭션 삭제
+        groupTransactionRepository.deleteAllByGroupId(groupId);
+        // 모든 멤버를 삭제해야함
         groupMemberRepository.removeAllMember(groupId);
+        
         groupRepository.deleteGroup(groupId);
 	}
 }
