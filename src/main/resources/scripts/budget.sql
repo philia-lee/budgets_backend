@@ -39,7 +39,7 @@ CREATE TABLE user_groups (
     FOREIGN KEY (owner_id) REFERENCES users(id)
 );
 
-CREATE TABLE transactions (
+CREATE TABLE transactions ( 
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     type ENUM('INCOME', 'EXPENSE') NOT NULL,

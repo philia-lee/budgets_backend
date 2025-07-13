@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.ssafy.social.transaction.dto.internal.UserBalance;
 import com.ssafy.social.transaction.dto.internal.UserSpending;
+import com.ssafy.social.transaction.dto.request.UpdateTransactionRequest;
 import com.ssafy.social.transaction.dto.response.MonthlySummaryResponse;
 import com.ssafy.social.transaction.dto.response.SettlementResponse;
 import com.ssafy.social.transaction.entity.GroupTransaction;
@@ -30,11 +31,6 @@ public class GroupTransactionService {
 		transaction.setGroupId(groupId);
 		transaction.setUserId(userId);
 		transactionRepository.insertGroupTransaction(transaction);
-	}
-
-	// 거래 수정
-	public void updateTransaction(GroupTransaction transaction) {
-		transactionRepository.updateGroupTransaction(transaction);
 	}
 
 	// 그룹 전체 거래 조회
@@ -56,6 +52,27 @@ public class GroupTransactionService {
 	public void deleteTransaction(int groupId, int transactionId) {
 		transactionRepository.deleteGroupTransaction(groupId, transactionId);
 	}
+	
+	public GroupTransaction getTransactionById(int groupId, int transactionId) {
+	    return transactionRepository.findById(groupId, transactionId);
+	}
+	
+	// 거래 수정
+	public void updateTransaction(int groupId, int transactionId, UpdateTransactionRequest request) {
+	    // 트랜잭션 조회
+		GroupTransaction transaction = new GroupTransaction();
+
+		transaction.setId(transactionId);
+		transaction.setGroupId(groupId);
+        transaction.setType(request.getType());
+        transaction.setAmount(request.getAmount());
+        transaction.setCategoryId(request.getCategoryId());
+        transaction.setDescription(request.getDescription());
+        transaction.setDate(request.getDate());
+
+        transactionRepository.updateGroupTransaction(transaction);
+	}
+
 	
 	public MonthlySummaryResponse calculateMonthlySummary(int groupId, Long userId) {
 	    LocalDate now = LocalDate.now();

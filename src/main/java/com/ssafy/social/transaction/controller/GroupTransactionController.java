@@ -2,11 +2,13 @@ package com.ssafy.social.transaction.controller;
 
 import com.ssafy.social.group.service.GroupService;
 import com.ssafy.social.transaction.dto.request.GroupTransactionRequest;
+import com.ssafy.social.transaction.dto.request.UpdateTransactionRequest;
 import com.ssafy.social.transaction.dto.response.GroupTransactionResponse;
 import com.ssafy.social.transaction.dto.response.MonthlySummaryResponse;
 import com.ssafy.social.transaction.dto.response.SettlementResponse;
 import com.ssafy.social.transaction.entity.GroupTransaction;
 import com.ssafy.social.transaction.service.GroupTransactionService;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -55,24 +57,6 @@ public class GroupTransactionController {
                 .body(Map.of("message", "Group transaction created successfully"));
     }
     
-    @PutMapping("/{transactionId}")
-    @Operation(summary = "거래 수정")
-    public ResponseEntity<?> updateGroupTransaction(
-            @PathVariable int groupId,
-            @PathVariable int transactionId,
-            @UserId Long userId,
-            @RequestBody GroupTransactionRequest request) {
-
-    	GroupTransaction transaction = toEntity(request);
-        transaction.setId(transactionId);
-        transaction.setGroupId(groupId);
-        transaction.setUserId(userId);
-
-        service.updateTransaction(transaction);
-
-        return ResponseEntity.ok(Map.of("message", "Group transaction updated successfully"));
-    }
-    
     @GetMapping
     @Operation(summary = "모든 거래 조회")
 	@ApiResponses({ @ApiResponse(responseCode = "200", description = "조회 성공"),
@@ -99,6 +83,18 @@ public class GroupTransactionController {
         List<GroupTransaction> list = service.getTransactionsByDateRange(groupId, startDate, endDate);
         return ResponseEntity.ok(toResponseList(list));
     }
+    
+    @PutMapping("/{transactionId}")
+    @Operation(summary = "거래 수정")
+    public ResponseEntity<?> updateGroupTransaction(
+            @PathVariable int groupId,
+            @PathVariable int transactionId,
+            @RequestBody UpdateTransactionRequest request) {
+
+    	System.out.println(request.toString());
+        service.updateTransaction(groupId, transactionId, request);
+        return ResponseEntity.ok(Map.of("message", "Group transaction updated successfully"));
+    }
 
     @DeleteMapping("/{transactionId}")
     public ResponseEntity<?> deleteGroupTransaction(
@@ -107,6 +103,23 @@ public class GroupTransactionController {
 
         service.deleteTransaction(groupId, transactionId);
         return ResponseEntity.ok(Map.of("message", "Group transaction deleted successfully"));
+    }
+    
+    @GetMapping("/{transactionId}")
+    @Operation(summary = "그룹 거래 단건 조회")
+    public ResponseEntity<?> getGroupTransaction(
+            @PathVariable int groupId,
+            @PathVariable int transactionId,
+            @UserId Long userId) {
+
+        GroupTransaction transaction = service.getTransactionById(groupId, transactionId);
+
+        if (transaction == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Transaction not found"));
+        }
+
+        return ResponseEntity.ok(transaction);
     }
     
     // 정산 결과 조회

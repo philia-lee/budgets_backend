@@ -27,7 +27,7 @@ public interface GroupTransactionRepository {
 
 	// 특정 그룹의 전체 거래 내역 조회
 	@Select("""
-			    SELECT id, group_id, user_id, type, amount, category_id, description, date
+			    SELECT id, group_id as groupId, user_id as userId, type, amount, category_id as categoryId, description, date
 			    FROM group_transactions
 			    WHERE group_id = #{groupId}
 			""")
@@ -40,6 +40,14 @@ public interface GroupTransactionRepository {
 			    ORDER BY date DESC
 			""")
 	List<GroupTransaction> findByGroupAndUser(@Param("groupId") int groupId, @Param("userId") Long userId);
+
+	// 해당 거래 조회
+	@Select("""
+			    SELECT id, group_id as groupId, user_id as userId, type, amount, category_id as categoryId, description, date
+			    FROM group_transactions
+			    WHERE group_id = #{groupId} AND id = #{transactionId}
+			""")
+	GroupTransaction findById(@Param("groupId") int groupId, @Param("transactionId") int transactionId);
 
 	// 특정 날짜 범위 조회
 	@Select("""
@@ -67,7 +75,7 @@ public interface GroupTransactionRepository {
 	@Update("""
 			    UPDATE group_transactions
 			    SET type = #{type}, amount = #{amount}, category_id = #{categoryId},
-			        description = #{description}
+			        description = #{description}, date = #{date}
 			    WHERE id = #{id} AND group_id = #{groupId}
 			""")
 	void updateGroupTransaction(GroupTransaction transaction);
