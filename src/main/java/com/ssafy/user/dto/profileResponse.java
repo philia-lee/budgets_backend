@@ -10,4 +10,5 @@ public class profileResponse {
 	String nickname;
 	Date birthdate;
 	String gender;
+	Date created_at;
 }

@@ -25,14 +25,7 @@ public class TransactionService {
 	@Transactional
 	public void create(Long userId,CreateTransactionRequest request)
 	{
-		Transaction transaction = Transaction.builder()
-								  .amount(request.getAmount())
-								  .type(request.getType())
-								  .description(request.getDescription())
-								  .category_id(request.getCategory_id())
-								  .date(request.getDate())
-								  .build();
-		transactionRepository.save(userId,transaction);
+		transactionRepository.save(userId,request);
 	}
 	
 	@Transactional
@@ -43,13 +36,7 @@ public class TransactionService {
             throw new BusinessException(ErrorCode.ACCESS_DENIED);
         }
 
-		Transaction transaction = Transaction.builder()
-								  .amount(request.getAmount())
-								  .type(request.getType())
-								  .description(request.getDescription())
-								  .date(request.getDate())
-								  .build();
-    	transactionRepository.update(userId,id, transaction);
+    	transactionRepository.update(userId,id, request);
 	}
 	
 	@Transactional
@@ -57,7 +44,7 @@ public class TransactionService {
 	{
 		Boolean existingBudget = transactionRepository.existsByIdAndUserId(userId, id);
     	if (!existingBudget) {
-            throw new BusinessException(ErrorCode.ACCESS_DENIED);
+            throw new BusinessException(ErrorCode.ILLEGAL_ARGUMENT);
         }
     	transactionRepository.delete(userId, id);
     	
@@ -68,6 +55,12 @@ public class TransactionService {
 	{
 		
 		return  transactionRepository.allshow(userId);
+	}
+	
+	@Transactional(readOnly = true) 
+	public  TransactionResponse show(Long userId, int trasactionId)
+	{
+		return transactionRepository.show(userId, trasactionId);
 	}
 	
 }

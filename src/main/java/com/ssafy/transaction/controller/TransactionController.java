@@ -72,4 +72,12 @@ public class TransactionController {
 				
 	}
 	
+	@GetMapping("/{transactionId}")
+	@Operation(summary="한개만 조회하기")
+	public ResponseEntity<TransactionResponse> readOneTransaction(@Parameter(hidden = true) @UserId Long userId, @PathVariable int transactionId)
+	{
+		TransactionResponse transaction = transactionService.show(userId,transactionId);
+		return ResponseEntity.ok(transaction);
+	}
+	
 }

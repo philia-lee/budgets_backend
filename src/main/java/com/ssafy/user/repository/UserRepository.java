@@ -14,8 +14,8 @@ import com.ssafy.user.entity.User;
 public interface UserRepository{
 	
 	@Insert("""
-            INSERT INTO users (email, hashed_password, nickname, birthdate, gender, refresh_token, created_at)
-            VALUES (#{email}, #{password}, #{nickname}, #{birthdate}, #{gender}, #{refresh_token}, #{createdAt})
+            INSERT INTO users (email, hashed_password, nickname, birthdate, gender, refresh_token)
+            VALUES (#{email}, #{password}, #{nickname}, #{birthdate}, #{gender}, #{refresh_token})
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id") // DB가 생성한 ID를 User 객체의 id 필드에 주입
     void save(User user);
@@ -33,7 +33,7 @@ public interface UserRepository{
 	@Update("UPDATE users SET refresh_token = #{refresh_token} WHERE id = #{id}")
 	void updateRefreshToken(User user);
 	
-	@Select("SELECT email, nickname, birthdate, gender FROM users WHERE id= #{id}")
+	@Select("SELECT email, nickname, birthdate, gender,created_at FROM users WHERE id= #{id}")
 	profileResponse profile(@Param("id")Long userId);
 	
 	

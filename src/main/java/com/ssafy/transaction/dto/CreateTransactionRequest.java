@@ -14,11 +14,12 @@ import lombok.Setter;
 @Getter @Setter
 @NoArgsConstructor // 기본 생성자 생성
 @AllArgsConstructor // 모든 필드를 인자로 받는 생성자 생성
+@Builder
 public class CreateTransactionRequest {
 	
 	private Integer amount;
 	private String type;
-	private Integer category_id;
+	private String category;
 	private String description;
 	private Date date;
 	
