@@ -4,8 +4,8 @@ import lombok.*;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class MonthlySummaryResponse {
-    private String month; // "2025-06"
+    private String month;
     private Double income;
     private Double expense;
-    private Double net; // income - expense
+    private Double net;
 }

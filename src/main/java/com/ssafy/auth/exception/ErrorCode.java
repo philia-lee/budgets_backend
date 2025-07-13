@@ -32,6 +32,8 @@ public enum ErrorCode {
     INVALID_INPUT_VALUE(400_001, HttpStatus.BAD_REQUEST, "유효하지 않은 입력 값입니다."), // 요청 파라미터 유효성 검사 실패
     ILLEGAL_ARGUMENT(400_002, HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     MISSING_REQUEST_PARAMETER(400_002, HttpStatus.BAD_REQUEST, "필수 요청 파라미터가 누락되었습니다.");
+	
+	
     // 각 에러 코드가 가질 필드: HTTP 상태 코드와 클라이언트에게 보여줄 메시지
 	private final Integer code; //에러 코드 번호
     private final HttpStatus httpStatus; // 에러 상태

@@ -13,7 +13,7 @@ import lombok.Setter;
 public class UpdateTransaction {
 	private Integer amount;
 	private String type;
-	private Integer category_id;
+	private String category;
 	private String description;
 	private Date date;
 }

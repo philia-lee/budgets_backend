@@ -4,13 +4,13 @@ import com.ssafy.statistic.dto.*;
 import com.ssafy.statistic.service.StatisticService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/statistics")
 @RequiredArgsConstructor
 public class StatisticController {
+
     private final StatisticService statisticService;
 
     @PostMapping("/category-expense")

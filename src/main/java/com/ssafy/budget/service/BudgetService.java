@@ -17,25 +17,24 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
-@Service // 이 클래스가 비즈니스 로직을 처리하는 서비스 계층임을 의미
-@RequiredArgsConstructor // final 필드에 대한 생성자 자동 생성
+@Service
+@RequiredArgsConstructor
 public class BudgetService {
 
     private final BudgetRepository budgetRepository;
     private final NotificationRepository notificationRepository;
     private final TransactionRepository transactionRepository;
-    // 예산 정보, 알림, 거래 내역 처리를 위한 repository 주입
 
     @Transactional
     public void createBudget(Long userId, CreateBudgetRequest request) {
+    	System.out.println("asd"+request.getStartDate());
         Budget budget = Budget.builder()
                 .user_id(userId)
                 .category_id(request.getCategory_id())
                 .amount(request.getAmount())
-                .start_date(request.getStartDate())
-                .end_date(request.getEndDate())
+                .start_date(request.getStartDate()) // [수정] camelCase → snake_case
+                .end_date(request.getEndDate())     // [수정] camelCase → snake_case
                 .build();
-
         budgetRepository.save(budget);
     }
 
@@ -54,7 +53,6 @@ public class BudgetService {
         if (!existingBudget) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED);
         }
-
         Budget budget = Budget.builder()
                 .id(budgetId)
                 .user_id(userId)
@@ -63,20 +61,17 @@ public class BudgetService {
                 .start_date(request.getStartDate())
                 .end_date(request.getEndDate())
                 .build();
-
         budgetRepository.update(budget, budgetId, userId);
     }
 
     @Transactional
     public void checkAndNotifyBudgetOver(Long userId, String category, int totalSpending) {
         List<Budget> budgets = budgetRepository.findByUserId(userId);
-
         for (Budget budget : budgets) {
             if (budget.getCategory_id().equals(category)
                     && LocalDate.now().isAfter(budget.getStart_date().minusDays(1))
                     && LocalDate.now().isBefore(budget.getEnd_date().plusDays(1))
                     && totalSpending > budget.getAmount()) {
-
                 Notification alarm = Notification.builder()
                         .userId(userId)
                         .message("[" + category + "] 예산 초과 알림입니다!")
@@ -84,7 +79,6 @@ public class BudgetService {
                         .isRead(false)
                         .createdAt(java.time.LocalDateTime.now())
                         .build();
-
                 notificationRepository.save(alarm);
             }
         }
@@ -94,7 +88,6 @@ public class BudgetService {
     @Transactional(readOnly = true)
     public List<Budget> getBudgetsWithUsage(Long userId) {
         List<Budget> budgets = budgetRepository.findByUserId(userId);
-
         for (Budget budget : budgets) {
             Integer totalSpent = transactionRepository.getTotalSpentForCategory(
                     userId,
@@ -104,7 +97,6 @@ public class BudgetService {
             );
             budget.setUsed_amount(totalSpent);
         }
-
         return budgets;
     }
 }
