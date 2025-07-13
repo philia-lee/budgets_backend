@@ -1,22 +1,19 @@
 package com.ssafy.notification.repository;
 
 import com.ssafy.notification.entity.Notification;
-
+import org.apache.ibatis.annotations.*;
 import java.util.List;
-
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface NotificationRepository {
-	// Notification 엔티티를 기반으로 Long 타입의 기본 키 사용.
-	
-	@Select("SELECT id,user_id,meesage,type,is_read,created_at WHERE user_id = #{userId}")
+
+    @Select("SELECT id, user_id, message, type, is_read, created_at FROM notifications WHERE user_id = #{userId}")
     List<Notification> findByUserId(Long userId);
-    
-	@Insert("INSERT into notifications (id,user_id as userId,message,type,is_read,create_at) VALUES (#{id},#{userId} ,#{message},#{type},#{is_read},#{create_at})")
-	@Options(useGeneratedKeys = true, keyProperty = "id")
+
+    @Insert("INSERT INTO notifications (user_id, message, type, is_read, created_at) VALUES (#{userId}, #{message}, #{type}, #{isRead}, #{createdAt})")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     void save(Notification alarm);
+
+    @Update("UPDATE notifications SET is_read = #{isRead} WHERE user_id = #{userId} AND id = #{notificationId}")
+    void updateIsRead(@Param("userId") Long userId, @Param("notificationId") Long notificationId, @Param("isRead") boolean isRead);
 }
