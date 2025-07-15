@@ -1,10 +1,9 @@
 package com.ssafy.social.member.repository;
 
 import com.ssafy.social.member.dto.response.GroupMemberResponse;
-import com.ssafy.social.member.entity.GroupMember;
-import org.apache.ibatis.annotations.*;
+import com.ssafy.user.entity.User;
 
-import java.util.List;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface GroupMemberRepository {
@@ -38,4 +37,10 @@ public interface GroupMemberRepository {
 			""")
 	GroupMemberResponse findMember(@Param("groupId") int groupId, @Param("userId") Long userId);
 
+	@Select("""
+			    SELECT id, nickname
+			    FROM users
+			    WHERE nickname = #{nickname}
+			""")
+	User findByNickname(@Param("nickname") String nickname);
 }

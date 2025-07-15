@@ -1,15 +1,11 @@
 package com.ssafy.social.member.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.stereotype.Service;
 
 import com.ssafy.social.group.repository.GroupRepository;
 import com.ssafy.social.member.dto.response.GroupMemberResponse;
 import com.ssafy.social.member.repository.GroupMemberRepository;
-import com.ssafy.user.repository.UserRepository;
+import com.ssafy.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -43,5 +39,14 @@ public class GroupMemberServiceImpl implements GroupMemberService {
             throw new RuntimeException("해당 그룹에 해당 유저가 존재하지 않습니다.");
         }
         return member;
+	}
+
+	@Override
+	public User getUserByNickname(String nickname) {
+		User user = groupMemberRepository.findByNickname(nickname);
+        if (user == null) {
+            throw new RuntimeException("닉네임 [" + nickname + "]인 사용자가 존재하지 않습니다.");
+        }
+        return user;
 	}
 }
